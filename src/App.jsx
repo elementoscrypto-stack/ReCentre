@@ -1,417 +1,347 @@
 import React, { useMemo, useState } from "react";
 import {
   Activity,
+  AlertTriangle,
   ArrowRight,
-  BadgeCheck,
+  Award,
   BarChart3,
-  Bot,
   Building2,
-  ChevronRight,
-  CircleDot,
+  CheckCircle2,
+  CircleDollarSign,
   Compass,
+  Crosshair,
   Download,
   FileText,
   Flame,
   Gauge,
-  Grid3X3,
-  Home,
   Layers3,
-  LineChart,
-  Map,
+  MessageSquare,
   Orbit,
   Radar,
+  RefreshCw,
   Search,
-  Send,
-  Settings,
   ShieldCheck,
   Sparkles,
   Target,
-  TrendingDown,
+  Upload,
+  Wand2,
   Zap,
 } from "lucide-react";
 
-const nav = [
-  [Home, "Command Centre"],
-  [Search, "Company Scan"],
-  [Radar, "Trust Radar"],
-  [LineChart, "Score History"],
-  [Orbit, "Category Gravity"],
-  [Activity, "Recovery Simulator"],
-  [Flame, "Failure Replay"],
-  [Map, "Market Heatmap"],
-  [Bot, "Strategy Engine"],
-  [FileText, "Reports"],
-  [Settings, "Settings"],
-];
-
-const levels = {
-  1: "Minute Risk",
-  5: "ReCentred",
-  7: "Recovery Motion",
-  10: "Critical Offering",
-  12: "Structural Weakness",
-  15: "Full Market Crisis",
-};
-
-const companies = {
+const DEMOS = {
+  Apple: {
+    industry: "Consumer Technology",
+    offer: "Premium device ecosystem with services and loyalty",
+    trust: 82,
+    relevance: 86,
+    pressure: 41,
+    sentiment: 78,
+    growth: 72,
+    competitor: "Samsung / Microsoft / Google",
+  },
+  Nokia: {
+    industry: "Telecom Infrastructure",
+    offer: "Legacy mobile heritage and network infrastructure brand",
+    trust: 54,
+    relevance: 49,
+    pressure: 72,
+    sentiment: 55,
+    growth: 43,
+    competitor: "Ericsson / Huawei / Samsung Networks",
+  },
   Peloton: {
-    sector: "Consumer Fitness Technology",
-    offer: "Premium connected fitness brand facing trust drift, relevance loss and category confusion.",
+    industry: "Consumer Brand",
+    offer: "Premium connected fitness subscription hardware",
     trust: 38,
     relevance: 41,
     pressure: 79,
     sentiment: 42,
     growth: 34,
-    old: "Connected Fitness Hardware",
-    fresh: "Confidence Commerce",
-    promise: "We help you show up, anytime, anywhere.",
+    competitor: "Apple Fitness / Tonal / gyms",
   },
   WeWork: {
-    sector: "Flexible Real Estate",
-    offer: "Flexible office network with damaged investor confidence and category fatigue.",
+    industry: "Real Estate",
+    offer: "Flexible office space with damaged investor trust",
     trust: 24,
     relevance: 46,
     pressure: 84,
     sentiment: 25,
     growth: 22,
-    old: "Flexible Office Space",
-    fresh: "Adaptive Space Confidence",
-    promise: "We make workspace feel safe, flexible and financially clear.",
+    competitor: "Regus / Industrious / local coworking",
   },
-  Nokia: {
-    sector: "Technology Infrastructure",
-    offer: "Legacy mobile memory rebuilt around secure network infrastructure.",
-    trust: 54,
-    relevance: 48,
-    pressure: 72,
-    sentiment: 55,
-    growth: 43,
-    old: "Legacy Mobile Brand",
-    fresh: "Trust Infrastructure",
-    promise: "We rebuild confidence through reliable network intelligence.",
+  BlackBerry: {
+    industry: "Cybersecurity",
+    offer: "Security-first enterprise software after mobile decline",
+    trust: 61,
+    relevance: 52,
+    pressure: 67,
+    sentiment: 58,
+    growth: 45,
+    competitor: "CrowdStrike / Microsoft / Palo Alto",
   },
 };
 
+const LEVEL_LABELS = {
+  1: "Minute Risk",
+  2: "Stable Signal",
+  3: "Light Drift",
+  4: "Market Watch",
+  5: "ReCentred",
+  6: "Nuance Forming",
+  7: "Recovery Motion",
+  8: "Trust Strain",
+  9: "Category Drift",
+  10: "Critical Offering",
+  11: "Confidence Loss",
+  12: "Structural Weakness",
+  13: "Collapse Warning",
+  14: "Back-to-Back Replay",
+  15: "Full Market Crisis",
+};
+
+const weakWords = ["generic", "legacy", "damaged", "unclear", "premium", "decline", "subscription", "hardware", "space"];
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
+
 export default function App() {
-  const [name, setName] = useState("Peloton");
-  const [custom, setCustom] = useState("Peloton");
-  const c = companies[name] || companies.Peloton;
+  const [company, setCompany] = useState("Peloton");
+  const [industry, setIndustry] = useState(DEMOS.Peloton.industry);
+  const [offer, setOffer] = useState(DEMOS.Peloton.offer);
+  const [trust, setTrust] = useState(DEMOS.Peloton.trust);
+  const [relevance, setRelevance] = useState(DEMOS.Peloton.relevance);
+  const [pressure, setPressure] = useState(DEMOS.Peloton.pressure);
+  const [sentiment, setSentiment] = useState(DEMOS.Peloton.sentiment);
+  const [growth, setGrowth] = useState(DEMOS.Peloton.growth);
+  const [competitor, setCompetitor] = useState(DEMOS.Peloton.competitor);
+  const [mode, setMode] = useState("Insane Visual");
+  const [scanType, setScanType] = useState("Public Company");
+  const [persona, setPersona] = useState("Founder Mode");
+  const [simBoost, setSimBoost] = useState(0);
+  const [notes, setNotes] = useState("Reviews mention price anxiety, weak urgency, and category confusion. Sales objections: too expensive, not essential, unclear long-term value.");
+  const [copilot, setCopilot] = useState("How do we reach Level 5?");
+
+  function loadDemo(name) {
+    const d = DEMOS[name];
+    setCompany(name);
+    setIndustry(d.industry);
+    setOffer(d.offer);
+    setTrust(d.trust);
+    setRelevance(d.relevance);
+    setPressure(d.pressure);
+    setSentiment(d.sentiment);
+    setGrowth(d.growth);
+    setCompetitor(d.competitor);
+    setSimBoost(0);
+  }
 
   const analysis = useMemo(() => {
+    const effectiveTrust = clamp(trust + simBoost, 0, 100);
+    const effectiveRelevance = clamp(relevance + simBoost * 0.8, 0, 100);
+    const effectiveSentiment = clamp(sentiment + simBoost * 0.65, 0, 100);
+    const effectiveGrowth = clamp(growth + simBoost * 0.5, 0, 100);
+    const effectivePressure = clamp(pressure - simBoost * 0.55, 0, 100);
+
     const weakness =
-      (100 - c.trust) * 0.24 +
-      (100 - c.relevance) * 0.21 +
-      c.pressure * 0.23 +
-      (100 - c.sentiment) * 0.17 +
-      (100 - c.growth) * 0.15;
-    const level = Math.min(15, Math.max(1, Math.round(1 + (weakness / 100) * 14)));
-    return {
-      level,
-      drift: Math.round(weakness),
-      label: level >= 12 ? "Structural Weakness" : level >= 10 ? "Critical Offering" : "Recovery Motion",
-      path: "10 → 7 → 5",
-      forecast: Math.max(2.1, (level - 5) * 0.58).toFixed(1),
-      confidence: Math.max(58, 100 - Math.round(weakness / 2)),
-      history: [14, 12, 12, 10, 9, 7, 8, 6, 7, 4, 2, 1],
+      (100 - effectiveTrust) * 0.24 +
+      (100 - effectiveRelevance) * 0.21 +
+      effectivePressure * 0.23 +
+      (100 - effectiveSentiment) * 0.17 +
+      (100 - effectiveGrowth) * 0.15;
+
+    const level = clamp(Math.round(1 + (weakness / 100) * 14), 1, 15);
+    const isSOR = level > 7;
+
+    const categoryMap = {
+      "Consumer Technology": ["Ecosystem Confidence", "trusted premium ecosystem for loyal customers"],
+      "Telecom Infrastructure": ["Network Trust Intelligence", "reliability-led infrastructure confidence"],
+      "Consumer Brand": ["Confidence Commerce", "trust-first lifestyle recovery for cautious buyers"],
+      "Real Estate": ["Adaptive Space Confidence", "buyer confidence in flexible physical networks"],
+      Cybersecurity: ["Enterprise Trust Shield", "security confidence for risk-led enterprise buyers"],
     };
-  }, [c]);
 
-  const metrics = [
-    ["Trust", c.trust, "↓ 34%"],
-    ["Relevance", c.relevance, "↓ 22%"],
-    ["Competitor Pressure", c.pressure, "↑ 18%"],
-    ["Sentiment", c.sentiment, "↓ 29%"],
-    ["Growth Signal", c.growth, "↓ 31%"],
-  ];
+    const [newCategory, nuance] = categoryMap[industry] || ["Market Trust Recovery", "trust rebuild platform for a shifting market"];
+    const damage = Math.round((100 - effectiveTrust) * 0.45 + (100 - effectiveSentiment) * 0.35 + effectivePressure * 0.2);
+    const urgency = Math.round(effectiveRelevance * 0.45 + effectiveGrowth * 0.25 + (100 - effectivePressure) * 0.3);
+    const coherence = Math.round((effectiveTrust + effectiveSentiment + effectiveRelevance) / 3);
+    const pricingTrust = Math.round((effectiveTrust + effectiveSentiment + (100 - effectivePressure)) / 3);
+    const cost = Math.max(25, Math.round((level - 5) * 65 + damage * 4));
+    const weeks = Math.max(4, Math.round((level - 5) * 3 + damage / 10));
+    const history = [12, 11, 10, 9, 7, 5].map((v, i) => clamp(v - Math.floor(simBoost / 12) - (i > 2 ? 1 : 0), 5, 15));
+    const forecast = [level, clamp(level - 1, 5, 15), clamp(level - 2, 5, 15), clamp(level - 4, 5, 15), 5];
 
-  const loadCompany = (value) => {
-    setCustom(value);
-    if (companies[value]) setName(value);
-  };
+    return {
+      effectiveTrust,
+      effectiveRelevance,
+      effectivePressure,
+      effectiveSentiment,
+      effectiveGrowth,
+      weakness: Math.round(weakness),
+      level,
+      label: LEVEL_LABELS[level],
+      isSOR,
+      state: isSOR ? "SOR / Skewed Offering Risk" : "NOR / Perpendicular Trust Alignment",
+      path: level >= 10 ? "10 → 7 → 5" : level > 5 ? "7 → 5" : "Hold Level 5",
+      newCategory,
+      nuance,
+      damage,
+      urgency,
+      coherence,
+      pricingTrust,
+      cost,
+      weeks,
+      history,
+      forecast,
+    };
+  }, [trust, relevance, pressure, sentiment, growth, simBoost, industry]);
+
+  const highlightOffer = offer.split(/(\s+)/).map((part, idx) => {
+    const clean = part.toLowerCase().replace(/[^a-z]/g, "");
+    const bad = weakWords.includes(clean);
+    return <span key={idx} className={bad ? "weak-word" : ""}>{part}</span>;
+  });
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#020712] text-slate-100 selection:bg-cyan-300/30">
-      <Background />
+    <main className={mode === "Boardroom" ? "app boardroom" : "app insane"}>
+      <div className="bg-grid" />
+      <div className={analysis.isSOR ? "sor-lines" : "nor-lines"} />
 
-      <div className="relative mx-auto max-w-[1800px] px-3 py-4 lg:px-6">
-        <Header analysis={analysis} />
+      <section className="shell">
+        <nav className="topbar">
+          <div className="brand">
+            <div className="brand-icon"><Compass size={28} /></div>
+            <div>
+              <h1>ReCentre</h1>
+              <p>Company de-markation & recategorization OS</p>
+            </div>
+          </div>
+          <div className="top-actions">
+            <button className="chip" onClick={() => setMode(mode === "Boardroom" ? "Insane Visual" : "Boardroom")}>{mode} Mode</button>
+            <button className="magic" onClick={() => setSimBoost((x) => clamp(x + 12, 0, 60))}><Zap size={16} /> Run Recovery Simulation</button>
+          </div>
+        </nav>
 
-        <div className="grid gap-4 xl:grid-cols-[270px_1fr_330px]">
-          <LeftRail />
+        <header className="hero-grid">
+          <div className="hero-copy">
+            <div className="eyebrow"><Sparkles size={16} /> 50x prototype upgrade build</div>
+            <h2>Pull failing companies through a perpendicular trust machine.</h2>
+            <p>Scan a company, detect trust drift, shatter the weak offering, form a new category nuance, and guide the business through <b>10 → 7 → 5</b>.</p>
+            <div className="pill-row">
+              <Pill icon={<Crosshair size={18} />} title="NOR" text="90° trust alignment" />
+              <Pill icon={<Flame size={18} />} title="SOR" text="skewed risk state" />
+              <Pill icon={<Award size={18} />} title="Level 5" text="ReCentred certification" />
+            </div>
+          </div>
 
-          <section className="grid gap-4">
-            <TopBar custom={custom} loadCompany={loadCompany} />
-            <HeroConsole company={name} c={c} analysis={analysis} metrics={metrics} />
+          <CoreReactor analysis={analysis} company={company} />
+        </header>
 
-            <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-              <ScoreHistory values={analysis.history} />
-              <Heatmap />
-              <GravityMap oldCat={c.old} newCat={c.fresh} />
-              <FusionCore category={c.fresh} />
+        <section className="layout">
+          <aside className="panel scanner">
+            <SectionTitle icon={<Search size={20} />} title="Live Company Search" />
+            <div className="demo-grid">
+              {Object.keys(DEMOS).map((name) => <button key={name} onClick={() => loadDemo(name)}>{name}</button>)}
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-              <ShatterLab oldCat={c.old} />
-              <RecoveryTower current={analysis.level} />
+            <div className="mode-grid">
+              {["Public Company", "Private Company"].map((x) => <button className={scanType === x ? "selected" : ""} key={x} onClick={() => setScanType(x)}>{x === "Private Company" ? <Upload size={14} /> : <Building2 size={14} />}{x}</button>)}
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]">
-              <RecoverySimulator />
-              <Forecast analysis={analysis} />
+            <label>Company<input value={company} onChange={(e) => setCompany(e.target.value)} /></label>
+            <label>Sector<input value={industry} onChange={(e) => setIndustry(e.target.value)} /></label>
+            <label>Competitors<input value={competitor} onChange={(e) => setCompetitor(e.target.value)} /></label>
+            <label>Current Offering<textarea value={offer} onChange={(e) => setOffer(e.target.value)} /></label>
+
+            <Slider label="Trust" value={trust} setValue={setTrust} />
+            <Slider label="Relevance" value={relevance} setValue={setRelevance} />
+            <Slider label="Competitor Pressure" value={pressure} setValue={setPressure} />
+            <Slider label="Sentiment" value={sentiment} setValue={setSentiment} />
+            <Slider label="Growth" value={growth} setValue={setGrowth} />
+          </aside>
+
+          <div className="main-stack">
+            <div className="mini-modes">
+              {["Investor Mode", "Agency Mode", "Founder Mode", "Retail Brand Mode", "SaaS Mode", "AI Company Mode"].map((x) => <button key={x} className={persona === x ? "active" : ""} onClick={() => setPersona(x)}>{x}</button>)}
             </div>
 
-            <Architecture />
-            <ThemeFooter />
-          </section>
+            <div className="grid-two">
+              <ScoreHistory analysis={analysis} />
+              <TrustGraph analysis={analysis} />
+            </div>
 
-          <RightRail c={c} analysis={analysis} company={name} />
-        </div>
-      </div>
+            <div className="grid-three">
+              <MetricCard icon={<ShieldCheck size={20} />} title="Brand Damage" value={`${analysis.damage}%`} text="Reputational pressure score" />
+              <MetricCard icon={<Target size={20} />} title="Offer Urgency" value={`${analysis.urgency}%`} text="Do buyers need this now?" />
+              <MetricCard icon={<FileText size={20} />} title="Narrative Coherence" value={`${analysis.coherence}%`} text="Does the company story make sense?" />
+            </div>
 
-      <style>{css}</style>
+            <div className="grid-two">
+              <Heatmap analysis={analysis} />
+              <GravityMap analysis={analysis} offer={offer} />
+            </div>
+
+            <div className="grid-two">
+              <ShatterLab offer={offer} />
+              <FusionCore analysis={analysis} />
+            </div>
+
+            <LevelTower current={analysis.level} />
+
+            <div className="grid-two">
+              <BeforeAfter offer={offer} analysis={analysis} />
+              <RadarPanel analysis={analysis} />
+            </div>
+
+            <div className="grid-two">
+              <RecoveryCards analysis={analysis} />
+              <Checklist analysis={analysis} />
+            </div>
+
+            <div className="grid-two">
+              <Intake title="Review Sentiment Intake" icon={<MessageSquare size={20} />} value={notes} setValue={setNotes} output="Trust leak detected: price anxiety + unclear long-term value." />
+              <Intake title="Sales Objection Analyzer" icon={<AlertTriangle size={20} />} value={copilot} setValue={setCopilot} output="Copilot says: rebuild urgency, simplify category, prove trust in one sentence." />
+            </div>
+
+            <StrategyPanel analysis={analysis} company={company} persona={persona} />
+          </div>
+        </section>
+      </section>
+      <Style />
     </main>
   );
 }
 
-function Background() {
-  return (
-    <div className="pointer-events-none fixed inset-0">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(14,165,233,.16),transparent_35%),radial-gradient(circle_at_82%_16%,rgba(236,72,153,.18),transparent_30%),radial-gradient(circle_at_18%_50%,rgba(34,211,238,.13),transparent_32%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(148,163,184,.055)_1px,transparent_1px),linear-gradient(0deg,rgba(148,163,184,.04)_1px,transparent_1px)] bg-[size:64px_64px]" />
-      <div className="absolute left-[18%] top-0 h-full w-px bg-cyan-300/20 shadow-[0_0_80px_18px_rgba(34,211,238,.18)]" />
-      <div className="absolute right-[24%] top-0 h-full w-px bg-pink-400/20 shadow-[0_0_90px_22px_rgba(236,72,153,.16)]" />
-    </div>
-  );
+function CoreReactor({ analysis, company }) {
+  return <div className="panel core">
+    <div className="reactor-ring ring-one" />
+    <div className="reactor-ring ring-two" />
+    <div className="reactor-glow" />
+    <div className="core-top"><p>Executive State of Play</p><h3>{company}</h3><span>{analysis.state}</span></div>
+    <div className="level-core"><Gauge size={34} /><strong>L{analysis.level}</strong><em>{analysis.label}</em></div>
+    <div className="core-metrics"><Small label="Trust Drift" value={`${analysis.weakness}%`} /><Small label="Path" value={analysis.path} /><Small label="Target" value="L5" /></div>
+  </div>;
 }
 
-function Header({ analysis }) {
-  return (
-    <header className="mb-4 grid gap-4 rounded-[2rem] border border-cyan-300/15 bg-slate-950/55 p-5 shadow-2xl backdrop-blur-xl lg:grid-cols-[1fr_1.7fr_1fr]">
-      <div className="panelClip border-cyan-300/20 p-5">
-        <p className="text-xs font-black uppercase tracking-[.25em] text-cyan-300">Level 15 → Level 5</p>
-        <h2 className="mt-2 text-3xl font-black leading-tight">Pull any company back to the market centre</h2>
-        <p className="mt-4 text-sm leading-6 text-cyan-100/70">Vibrate time out of a poor offering and recategorize the new nuance into trust.</p>
-      </div>
+function ScoreHistory({ analysis }) { return <div className="panel"><SectionTitle icon={<Activity size={20} />} title="ReCentre Score History" /><div className="barbox">{analysis.history.map((l,i)=><div className="barcol" key={i}><div style={{height:`${l*9}px`}} className={l===5?"bar good":l>10?"bar danger":"bar mid"}/><span>L{l}</span></div>)}</div></div>; }
+function TrustGraph({ analysis }) { return <div className="panel"><SectionTitle icon={<BarChart3 size={20} />} title="Trust Drift Graph + Forecast" /><div className="linegraph">{analysis.forecast.map((l,i)=><div key={i} className="dot" style={{left:`${10+i*21}%`,bottom:`${100-l*5}%`}}><span>L{l}</span></div>)}</div></div>; }
+function Heatmap({ analysis }) { const cells=[['Buyers',100-analysis.effectiveTrust],['Product',100-analysis.effectiveRelevance],['Story',100-analysis.effectiveSentiment],['Pricing',100-analysis.pricingTrust]]; return <div className="panel"><SectionTitle icon={<Radar size={20}/>} title="Market Confidence Heatmap"/><div className="heatgrid">{cells.map(([n,v])=><div key={n} className="heat" style={{background:`linear-gradient(135deg, rgba(217,70,239,${v/130}), rgba(103,232,249,${(100-v)/160}))`}}><b>{Math.round(v)}%</b><span>{n} pressure</span></div>)}</div></div>; }
+function GravityMap({ analysis, offer }) { return <div className="panel"><SectionTitle icon={<Orbit size={20}/>} title="Category Gravity Map"/><div className="gravity"><div className="oldcat">Old: {offer}</div><ArrowRight className="arrow" size={34}/><div className="newcat">{analysis.newCategory}</div></div></div>; }
+function ShatterLab({ offer }) { return <div className="panel"><SectionTitle icon={<AlertTriangle size={20}/>} title="Old Offer Shatter + Weakness Highlighter"/><div className="highlight">{offer.split(/(\s+)/).map((p,i)=>{const bad=weakWords.includes(p.toLowerCase().replace(/[^a-z]/g,'')); return <span key={i} className={bad?'weak-word':''}>{p}</span>})}</div><div className="shards">{offer.split(' ').slice(0,7).map((w,i)=><span key={i} style={{left:`${8+i*12}%`,top:`${20+(i%3)*22}%`}}>{w}</span>)}</div></div>; }
+function FusionCore({ analysis }) { return <div className="panel fusion"><SectionTitle icon={<Sparkles size={20}/>} title="New Nuance Fusion Core"/><div className="fusion-orb"><h3>{analysis.nuance}</h3><p>New category: {analysis.newCategory}</p></div></div>; }
+function LevelTower({ current }) { return <div className="panel"><SectionTitle icon={<Layers3 size={20}/>} title="15-Level Recovery Tower v2"/><div className="tower">{Array.from({length:15},(_,i)=>15-i).map(l=><div key={l} className={l===current?'now':l===5?'goal':l>10?'danger':''}><b>L{l}</b><span>{LEVEL_LABELS[l]}</span></div>)}</div></div>; }
+function BeforeAfter({ offer, analysis }) { return <div className="panel"><SectionTitle icon={<RefreshCw size={20}/>} title="Category Before / After"/><div className="beforeafter"><div><small>Before</small><b>{offer}</b></div><div><small>After</small><b>{analysis.newCategory}</b></div></div></div>; }
+function RadarPanel({ analysis }) { const vals=[analysis.effectiveTrust,analysis.effectiveRelevance,100-analysis.effectivePressure,analysis.effectiveSentiment,analysis.effectiveGrowth]; const pts=vals.map((v,i)=>{const a=(-90+i*72)*Math.PI/180; const r=25+v*.62; return [100+Math.cos(a)*r,100+Math.sin(a)*r].join(',')}).join(' '); return <div className="panel"><SectionTitle icon={<Radar size={20}/>} title="Trust Radar v2"/><svg viewBox="0 0 200 200" className="radarSvg"><circle cx="100" cy="100" r="80"/><circle cx="100" cy="100" r="52"/><circle cx="100" cy="100" r="24"/><polygon points={pts}/></svg></div>; }
+function RecoveryCards({ analysis }) { return <div className="panel"><SectionTitle icon={<Wand2 size={20}/>} title="Recovery Action Cards"/><div className="actions"><button>30 days: simplify promise</button><button>60 days: launch new category page</button><button>90 days: certify Level 5 trust</button><p>Estimated recovery: <b>${analysis.cost}k</b> / <b>{analysis.weeks} weeks</b></p></div></div>; }
+function Checklist({ analysis }) { const done=analysis.level<=5; return <div className="panel"><SectionTitle icon={<CheckCircle2 size={20}/>} title="Level 5 Checklist + Certification"/><ul className="checklist"><li>Clear category promise</li><li>Trust damage under control</li><li>Offer urgency restored</li><li>Competitor theft reduced</li></ul><div className={done?'cert on':'cert'}><Award size={22}/> Level 5 ReCentred</div></div>; }
+function StrategyPanel({ analysis, company, persona }) { return <div className="panel strategy"><SectionTitle icon={<FileText size={20}/>} title="AI Strategy Copilot + Executive Report"/><h3>{company} should recategorize into <span>{analysis.newCategory}</span>.</h3><p>Mode: {persona}. ReCentre recommends rebuilding the trust promise, reducing category confusion, and moving through {analysis.path}.</p><div className="report-actions"><button><Download size={16}/> Export Board Report</button><button><CircleDollarSign size={16}/> Subscription: Pro Reports</button><button><MessageSquare size={16}/> Ask Copilot</button></div></div>; }
+function Intake({ title, icon, value, setValue, output }) { return <div className="panel"><SectionTitle icon={icon} title={title}/><textarea className="bigtext" value={value} onChange={e=>setValue(e.target.value)}/><p className="output">{output}</p></div>; }
+function MetricCard({ icon, title, value, text }) { return <div className="panel metric-card"><div>{icon}<span>{title}</span></div><b>{value}</b><p>{text}</p></div>; }
+function SectionTitle({ icon, title }) { return <div className="section-title">{icon}<h3>{title}</h3></div>; }
+function Slider({ label, value, setValue }) { return <div className="slider"><div><span>{label}</span><b>{value}</b></div><input type="range" min="0" max="100" value={value} onChange={e=>setValue(Number(e.target.value))}/></div>; }
+function Small({ label, value }) { return <div className="small"><span>{label}</span><b>{value}</b></div>; }
+function Pill({ icon, title, text }) { return <div className="pill">{icon}<b>{title}</b><span>{text}</span></div>; }
 
-      <div className="text-center">
-        <h1 className="text-6xl font-black tracking-tight md:text-8xl">
-          Re<span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-violet-300 to-cyan-300">Centre</span>
-        </h1>
-        <p className="mt-2 text-lg uppercase tracking-[.42em] text-white/70">De-Markation & Recategorization OS</p>
-        <p className="mt-2 text-sm uppercase tracking-[.25em] text-cyan-100/60">The Perpendicular Trust Engine for Failing Companies</p>
-      </div>
-
-      <div className="panelClip border-pink-400/20 p-5">
-        <p className="text-xs font-black uppercase tracking-[.22em] text-white/55">Current State</p>
-        <h3 className="mt-1 text-4xl font-black text-rose-300">Level {analysis.level}</h3>
-        <p className="mt-1 text-sm text-white/75">{analysis.label}</p>
-        <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-cyan-300">Path to ReCentre</p>
-        <p className="mt-1 text-2xl font-black text-cyan-200">{analysis.path}</p>
-        <p className="mt-1 text-xs font-black uppercase text-rose-300">Replay loop active</p>
-      </div>
-    </header>
-  );
-}
-
-function LeftRail() {
-  return (
-    <aside className="grid gap-4">
-      <div className="panel min-h-[565px] overflow-hidden p-5">
-        <div className="portal mx-auto mt-2">
-          <div className="portalRing" />
-          <div className="portalRing r2" />
-          <div className="portalCore" />
-          <div className="human" />
-        </div>
-        <div className="mt-8 h-[220px] rounded-3xl border border-cyan-300/10 bg-[radial-gradient(circle,rgba(34,211,238,.18),transparent_34%),linear-gradient(180deg,transparent,rgba(34,211,238,.07))]" />
-      </div>
-
-      <div className="panel p-5">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="grid h-14 w-14 place-items-center rounded-full bg-cyan-300/10 text-cyan-200 shadow-[0_0_45px_rgba(34,211,238,.25)]"><Bot /></div>
-          <div><h3 className="font-black text-cyan-100">AI Copilot</h3><p className="text-xs text-white/45">Recovery strategy</p></div>
-        </div>
-        <p className="text-sm leading-6 text-white/60">Ask anything about recovery, strategy, positioning and trust drift.</p>
-        <div className="mt-4 flex rounded-2xl border border-cyan-300/15 bg-slate-950/70 p-2">
-          <input className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-white/30" placeholder="Ask Copilot..." />
-          <Send className="h-5 w-5 text-cyan-300" />
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-function TopBar({ custom, loadCompany }) {
-  return (
-    <div className="panel flex flex-col gap-3 p-3 md:flex-row md:items-center">
-      <div className="flex items-center gap-3 px-2">
-        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-cyan-300 to-pink-400"><Sparkles className="h-5 w-5 text-slate-950" /></div>
-        <b className="text-xl">ReCentre</b>
-      </div>
-      <div className="flex flex-1 items-center gap-2 rounded-2xl border border-cyan-300/15 bg-slate-950/70 px-3 py-2">
-        <Search className="h-4 w-4 text-cyan-300" />
-        <select value={custom} onChange={(e) => loadCompany(e.target.value)} className="w-full bg-transparent text-sm outline-none">
-          {Object.keys(companies).map((x) => <option key={x}>{x}</option>)}
-        </select>
-      </div>
-      <button className="toggle"><span /> Executive Mode</button>
-    </div>
-  );
-}
-
-function HeroConsole({ company, c, analysis, metrics }) {
-  return (
-    <div className="panel p-5">
-      <div className="grid gap-5 lg:grid-cols-[1fr_260px_260px]">
-        <div className="flex flex-col justify-between rounded-[1.6rem] border border-cyan-300/10 bg-slate-950/35 p-5">
-          <div>
-            <h2 className="text-4xl font-black uppercase">{company}</h2>
-            <p className="mt-2 text-sm text-cyan-200">{c.sector}</p>
-            <p className="mt-6 max-w-md text-sm leading-6 text-white/65">{c.offer}</p>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Tag>Public Company</Tag><Tag>Consumer Brand</Tag><Tag>SOR State</Tag>
-          </div>
-        </div>
-
-        <div className="levelOrb">
-          <div className="levelOrbInner">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-white/70">Level</p>
-            <div className="text-7xl font-black">{analysis.level}</div>
-            <p className="text-xs font-black uppercase tracking-[.16em] text-white/60">{analysis.label}</p>
-          </div>
-          <div className="sorBadge">SOR State<br />Skewed Offering Risk</div>
-        </div>
-
-        <MiniTrend />
-      </div>
-
-      <div className="mt-4 grid gap-3 md:grid-cols-5">
-        {metrics.map(([label, value, delta]) => <MetricCard key={label} label={label} value={value} delta={delta} />)}
-      </div>
-    </div>
-  );
-}
-
-function MiniTrend() {
-  const pts = [85, 88, 75, 80, 70, 62, 64, 55, 48, 40, 35, 24];
-  const path = pts.map((p, i) => `${i * 20},${100 - p}`).join(" ");
-  return (
-    <div className="rounded-[1.6rem] border border-cyan-300/10 bg-slate-950/35 p-5">
-      <h3 className="text-sm font-black uppercase tracking-wider text-cyan-300">Trust Drift Over Time</h3>
-      <svg viewBox="0 0 220 110" className="mt-5 h-36 w-full overflow-visible">
-        {[0, 1, 2, 3].map((i) => <line key={i} x1="0" y1={i * 28} x2="220" y2={i * 28} stroke="rgba(148,163,184,.14)" />)}
-        <polyline points={path} fill="none" stroke="rgb(251,113,133)" strokeWidth="3" />
-        {pts.map((p, i) => <circle key={i} cx={i * 20} cy={100 - p} r="3" fill="rgb(251,113,133)" />)}
-      </svg>
-    </div>
-  );
-}
-
-function RightRail({ c, analysis, company }) {
-  return (
-    <aside className="grid gap-4 content-start">
-      <div className="panel p-5">
-        <Title icon={<Orbit />} text="ReCentre Engine" />
-        <div className="engineOrb mb-5" />
-        <p className="text-xs font-black uppercase tracking-[.2em] text-cyan-300">Analyzing 147 Signals</p>
-        {["Market Data", "Social Sentiment", "Review Intelligence", "Competitor Moves", "Category Drift", "Product Relevance", "Pricing Signal"].map((x) => (
-          <div key={x} className="mt-2 flex items-center justify-between text-sm text-white/65"><span className="flex items-center gap-2"><CircleDot className="h-3 w-3" />{x}</span><span className="text-cyan-300">✓</span></div>
-        ))}
-      </div>
-
-      <div className="panel p-5">
-        <Title icon={<Bot />} text="AI Strategy Copilot" />
-        <Bubble>What should we fix first to reach Level 5?</Bubble>
-        <Bubble accent>Focus on rebuilding trust through a new category nuance and sharpened offer clarity.</Bubble>
-        <div className="mt-4 flex rounded-2xl border border-cyan-300/15 bg-slate-950/70 p-2">
-          <input className="min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-white/30" placeholder="Ask Copilot..." />
-          <Send className="h-5 w-5 text-cyan-300" />
-        </div>
-      </div>
-
-      <div className="panel p-5">
-        <Title icon={<FileText />} text="Strategy Output Preview" />
-        <SmallLabel>New Category</SmallLabel><h3 className="mb-4 text-xl font-black">{c.fresh}</h3>
-        <SmallLabel>New Positioning Line</SmallLabel><p className="mb-4 text-lg font-bold">The fitness ecosystem that actually fits real life.</p>
-        <SmallLabel>Trust Promise</SmallLabel><p className="text-white/75">{c.promise}</p>
-        <button className="actionBtn mt-5">Generate Full Strategy <ChevronRight className="h-4 w-4" /></button>
-      </div>
-
-      <div className="panel p-5">
-        <Title icon={<Download />} text="Executive Report" />
-        <div className="rounded-2xl border border-cyan-300/15 bg-slate-950/75 p-4">
-          <p className="text-cyan-200">ReCentre</p><h3 className="text-2xl font-black uppercase">{company}</h3><p className="text-sm text-white/50">Recovery Report<br />Level {analysis.level} → Level 5</p>
-        </div>
-        <button className="actionBtn mt-4">Download PDF <Download className="h-4 w-4" /></button>
-      </div>
-
-      <div className="panel p-5 text-center">
-        <div className="badge mx-auto"><BadgeCheck className="h-12 w-12 text-cyan-200" /><b>LEVEL 5<br />RECENTRED</b><span>Trust • Nuance • Clarity</span></div>
-      </div>
-    </aside>
-  );
-}
-
-function ScoreHistory({ values }) {
-  return <Panel title="Score History" icon={<LineChart />}><div className="h-56 rounded-3xl border border-cyan-300/10 bg-slate-950/40 p-4"><svg viewBox="0 0 420 180" className="h-full w-full"><polyline points={values.map((v, i) => `${i * 38 + 12},${170 - v * 10}`).join(" ")} fill="none" stroke="rgb(34,211,238)" strokeWidth="3" />{values.map((v, i) => <circle key={i} cx={i * 38 + 12} cy={170 - v * 10} r="4" fill="rgb(34,211,238)" />)}<text x="300" y="35" fill="rgb(244,114,182)" fontSize="15" fontWeight="900">Replay Loop 10 → 7 → 5</text></svg></div></Panel>;
-}
-
-function Heatmap() {
-  return <Panel title="Market Confidence Heatmap" icon={<Map />}><div className="heat h-56 rounded-3xl border border-cyan-300/10"><span>HIGH RISK</span><b>HIGH TRUST</b></div></Panel>;
-}
-
-function GravityMap({ oldCat, newCat }) {
-  return <Panel title="Category Gravity Map" icon={<Orbit />}><div className="relative h-56 rounded-3xl border border-cyan-300/10 bg-slate-950/40"><div className="gravity old"><b>{oldCat}</b><span>Old Category</span></div><div className="gravity fresh"><b>{newCat}</b><span>New Category</span></div><div className="gravityLine" /></div></Panel>;
-}
-
-function FusionCore({ category }) {
-  return <Panel title="New Nuance Fusion Core" icon={<Sparkles />}><div className="fusion h-72"><div><h3>{category}</h3><p>A trust-first category experience that fits real life.</p></div></div></Panel>;
-}
-
-function ShatterLab({ oldCat }) {
-  return <Panel title="Old Offer Shatter" icon={<Flame />}><div className="shatter h-72">{oldCat.split(" ").map((x, i) => <span key={i} style={{ left: `${20 + i * 13}%`, top: `${28 + (i % 3) * 18}%` }}>{x}</span>)}<button>Shattering Failed Narrative</button></div></Panel>;
-}
-
-function RecoveryTower({ current }) {
-  return <Panel title="15 Level Recovery Tower" icon={<Layers3 />}><div className="tower h-72"><div className="rings">{Array.from({ length: 9 }, (_, i) => <i key={i} style={{ bottom: `${i * 20 + 22}px`, width: `${220 - i * 12}px` }} />)}</div><b className="towerLabel l15">Level 15</b><b className="towerLabel l10">Level 10</b><b className="towerLabel l7">Level 7</b><b className="towerLabel l5">Level 5</b><p>PATH: 10 → 7 → 5</p></div></Panel>;
-}
-
-function RecoverySimulator() {
-  const actions = ["Reposition", "Rebuild Trust", "Refocus Offer", "Reignite Growth"];
-  return <Panel title="Recovery Simulator" icon={<Activity />}><div className="grid gap-3 md:grid-cols-4">{actions.map((x) => <button className="sim" key={x}><b>{x}</b><span>{x === "Reposition" ? "Create new category nuance & story" : x === "Rebuild Trust" ? "Fix reviews, service & experience" : x === "Refocus Offer" ? "Simplify, clarify, create urgency" : "Acquisition, retention, expansion engine"}</span></button>)}</div></Panel>;
-}
-
-function Forecast({ analysis }) {
-  return <Panel title="Forecast to Level 5" icon={<TrendingDown />}><div className="rounded-3xl border border-cyan-300/10 bg-slate-950/40 p-5"><SmallLabel>Estimated Time</SmallLabel><h3 className="text-2xl font-black">{analysis.forecast} Months</h3><SmallLabel>Confidence of Recovery</SmallLabel><h3 className="text-2xl font-black text-cyan-300">{analysis.confidence}%</h3><svg viewBox="0 0 220 70" className="mt-3 h-20 w-full"><polyline points="0,60 20,58 40,50 60,48 80,39 100,42 120,30 140,26 160,20 180,12 200,6 220,0" fill="none" stroke="rgb(34,211,238)" strokeWidth="3" /></svg></div></Panel>;
-}
-
-function Architecture() {
-  const items = ["Header", "TrustMetrics", "LevelGauge", "ScoreHistory", "HeatmapWorld", "CategoryGravity", "ShatterAnimation", "NuanceFusionCore", "RecoveryTower", "RecoverySimulator", "ForecastPanel", "StrategyOutput", "AICopilot", "ReportExport", "CertificationBadge"];
-  return <div className="panel p-5"><Title icon={<Grid3X3 />} text="Component Breakdown & System Architecture" /><div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">{items.map((x) => <div key={x} className="codeCard"><b>&lt;{x} /&gt;</b><span>props: &#123; signal, state, gradient &#125;</span></div>)}</div></div>;
-}
-
-function ThemeFooter() {
-  return <footer className="panel mb-2 grid gap-4 p-5 md:grid-cols-6"><FooterBlock title="Colours"><div className="flex gap-2">{["#fb3568","#22d3ee","#2dd4bf","#d946ef","#a78bfa","#64748b","#f97316"].map((c) => <i key={c} className="h-6 w-6 rounded-full" style={{ background: c }} />)}</div></FooterBlock><FooterBlock title="Typography">Orbitron / Exo 2<br />Inter / Space Grotesk</FooterBlock><FooterBlock title="Layout System">NOR perpendicular cards, grids, 90°</FooterBlock><FooterBlock title="SOR Skewed">Angles, diagonals, warning state</FooterBlock><FooterBlock title="Animations">Particles, glows, shatter, fusion, orbit</FooterBlock><FooterBlock title="UI Feel">Insane, immersive, magical, futuristic</FooterBlock></footer>;
-}
-
-function Panel({ title, icon, children }) { return <div className="panel p-5"><Title icon={icon} text={title} />{children}</div>; }
-function Title({ icon, text }) { return <div className="mb-4 flex items-center gap-2"><div className="text-cyan-300">{React.cloneElement(icon, { className: "h-5 w-5" })}</div><h3 className="text-sm font-black uppercase tracking-[.14em] text-cyan-200">{text}</h3></div>; }
-function Tag({ children }) { return <span className="rounded-lg border border-violet-300/20 bg-violet-300/10 px-3 py-1 text-xs font-black uppercase text-violet-200">{children}</span>; }
-function MetricCard({ label, value, delta }) { return <div className="metric"><SmallLabel>{label}</SmallLabel><h3>{value}<span>/100</span></h3><p>{delta}</p><svg viewBox="0 0 100 35"><polyline points="0,30 12,26 24,28 36,18 48,22 60,11 72,14 84,8 100,15" fill="none" stroke="rgb(251,113,133)" strokeWidth="2" /></svg></div>; }
-function SmallLabel({ children }) { return <p className="text-xs font-black uppercase tracking-[.12em] text-cyan-200/70">{children}</p>; }
-function Bubble({ children, accent }) { return <div className={`mt-3 rounded-2xl border p-4 text-sm leading-6 ${accent ? "border-cyan-300/15 bg-cyan-300/10 text-cyan-100" : "border-white/10 bg-slate-950/60 text-white/70"}`}>{children}</div>; }
-function FooterBlock({ title, children }) { return <div><h4 className="mb-2 text-xs font-black uppercase tracking-[.18em] text-pink-300">{title}</h4><div className="text-sm leading-6 text-white/60">{children}</div></div>; }
-
-const css = `
-.panel{border:1px solid rgba(34,211,238,.16);background:linear-gradient(180deg,rgba(15,23,42,.72),rgba(2,6,23,.82));box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 22px 70px rgba(0,0,0,.35);border-radius:22px;backdrop-filter:blur(18px)}
-.panelClip{border:1px solid;border-radius:20px;background:rgba(2,6,23,.58);clip-path:polygon(0 0,94% 0,100% 18%,100% 100%,6% 100%,0 82%)}
-.toggle{display:flex;align-items:center;gap:9px;border:1px solid rgba(34,211,238,.18);border-radius:999px;background:rgba(15,23,42,.75);padding:10px 14px;font-size:12px;color:rgba(255,255,255,.7)}.toggle span{width:34px;height:18px;border-radius:999px;background:rgb(244,63,94);box-shadow:0 0 18px rgba(244,63,94,.8)}
-.portal{position:relative;width:210px;height:280px}.portalRing,.portalRing:before{position:absolute;inset:20px 10px;border-radius:50%;border:2px solid rgba(34,211,238,.5);box-shadow:0 0 50px rgba(34,211,238,.45);animation:spin 20s linear infinite}.portalRing:before{content:"";inset:22px;border-color:rgba(217,70,239,.45);animation:none}.portalRing.r2{inset:52px 42px;border-color:rgba(99,102,241,.45);animation-direction:reverse}.portalCore{position:absolute;left:50%;top:35%;width:48px;height:170px;transform:translateX(-50%);background:linear-gradient(180deg,rgba(34,211,238,.8),transparent);filter:blur(14px)}.human{position:absolute;left:50%;bottom:25px;width:16px;height:42px;transform:translateX(-50%);border-radius:999px;background:#020617;box-shadow:0 0 22px rgba(34,211,238,.9)}
-.levelOrb{position:relative;display:grid;place-items:center;min-height:300px}.levelOrb:before{content:"";position:absolute;width:245px;height:245px;border-radius:50%;border:8px solid rgba(244,63,94,.65);box-shadow:0 0 60px rgba(244,63,94,.5),inset 0 0 60px rgba(244,63,94,.22);animation:pulse 2.2s ease-in-out infinite}.levelOrb:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;border:1px solid rgba(34,211,238,.35);animation:spin 13s linear infinite}.levelOrbInner{text-align:center;z-index:1}.sorBadge{position:absolute;bottom:10px;border:1px solid rgba(244,63,94,.4);border-radius:14px;padding:10px 20px;text-align:center;text-transform:uppercase;font-weight:900;font-size:12px;color:#fda4af;background:rgba(244,63,94,.09)}
-.metric{border:1px solid rgba(34,211,238,.16);border-radius:14px;background:rgba(15,23,42,.62);padding:16px}.metric h3{font-size:30px;font-weight:900}.metric h3 span{font-size:13px;color:rgba(255,255,255,.6)}.metric p{color:#fb7185;font-size:13px;font-weight:900}.actionBtn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;border:1px solid rgba(34,211,238,.35);border-radius:14px;background:rgba(34,211,238,.08);padding:12px;text-transform:uppercase;font-size:12px;font-weight:900;color:#67e8f9}.engineOrb{height:185px;border-radius:24px;background:radial-gradient(circle at 50% 50%,rgba(244,114,182,.9),rgba(34,211,238,.28) 18%,transparent 52%),repeating-radial-gradient(circle,rgba(34,211,238,.35) 0 1px,transparent 1px 18px);animation:pulse 2.4s infinite ease-in-out}
-.heat{position:relative;overflow:hidden;background:radial-gradient(circle at 28% 48%,rgba(244,63,94,.75),transparent 31%),radial-gradient(circle at 67% 42%,rgba(34,211,238,.72),transparent 34%),radial-gradient(circle at 50% 60%,rgba(217,70,239,.45),transparent 38%),#020617}.heat:before{content:"";position:absolute;inset:35px;background:linear-gradient(35deg,transparent 45%,rgba(255,255,255,.22) 50%,transparent 55%);filter:blur(20px)}.heat span,.heat b{position:absolute;bottom:14px;font-size:11px}.heat span{left:18px;color:#fb7185}.heat b{right:18px;color:#67e8f9}.gravity{position:absolute;top:68px;width:118px;height:118px;border-radius:999px;display:grid;place-items:center;text-align:center;padding:16px}.gravity b{font-size:13px}.gravity span{font-size:11px;color:rgba(255,255,255,.55)}.gravity.old{left:35px;border:1px solid rgba(244,63,94,.35);background:radial-gradient(circle,rgba(244,63,94,.35),transparent 65%)}.gravity.fresh{right:35px;border:1px solid rgba(34,211,238,.45);background:radial-gradient(circle,rgba(34,211,238,.45),transparent 65%);box-shadow:0 0 55px rgba(34,211,238,.28)}.gravityLine{position:absolute;left:155px;right:155px;top:126px;height:2px;background:linear-gradient(90deg,#fb7185,#22d3ee);box-shadow:0 0 20px #22d3ee}
-.fusion{position:relative;display:grid;place-items:center;overflow:hidden;border:1px solid rgba(34,211,238,.16);border-radius:22px;background:radial-gradient(circle,rgba(34,211,238,.24),transparent 38%),#020617}.fusion:before,.fusion:after{content:"";position:absolute;width:245px;height:245px;border-radius:50%;border:1px solid rgba(34,211,238,.35);animation:spin 14s linear infinite}.fusion:after{width:170px;height:170px;border-color:rgba(217,70,239,.45);animation-direction:reverse}.fusion div{text-align:center;z-index:1}.fusion h3{font-size:26px;font-weight:900}.fusion p{color:rgba(255,255,255,.6);font-size:13px}.shatter{position:relative;overflow:hidden;border:1px solid rgba(244,63,94,.18);border-radius:22px;background:radial-gradient(circle,rgba(244,63,94,.28),transparent 33%),#020617}.shatter span{position:absolute;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.12);border-radius:12px;padding:10px 14px;font-weight:900;animation:float 2.2s ease-in-out infinite alternate}.shatter button{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);border:1px solid rgba(217,70,239,.4);border-radius:999px;background:rgba(217,70,239,.13);padding:10px 22px;text-transform:uppercase;font-weight:900;color:#f0abfc}.tower{position:relative;overflow:hidden;border:1px solid rgba(34,211,238,.16);border-radius:22px;background:radial-gradient(circle at 50% 95%,rgba(34,211,238,.28),transparent 35%),#020617}.rings i{position:absolute;left:50%;height:26px;transform:translateX(-50%);border:2px solid rgba(34,211,238,.5);border-radius:50%;box-shadow:0 0 25px rgba(34,211,238,.25);background:linear-gradient(90deg,rgba(34,211,238,.1),rgba(217,70,239,.1))}.towerLabel{position:absolute;right:22px;font-size:12px}.l15{top:30px;color:#f0abfc}.l10{top:95px;color:#fb7185}.l7{top:145px;color:#c084fc}.l5{top:197px;color:#5eead4}.tower p{position:absolute;bottom:18px;width:100%;text-align:center;font-weight:900;color:#fda4af}.sim{border:1px solid rgba(34,211,238,.16);border-radius:16px;background:rgba(15,23,42,.58);padding:18px;text-align:left}.sim b{display:block;color:#67e8f9;text-transform:uppercase}.sim span{font-size:13px;color:rgba(255,255,255,.55)}.codeCard{border:1px solid rgba(34,211,238,.12);border-radius:12px;background:rgba(15,23,42,.55);padding:14px}.codeCard b{display:block;color:#67e8f9;font-family:monospace}.codeCard span{font-size:12px;color:rgba(255,255,255,.48)}.badge{display:grid;place-items:center;width:210px;height:210px;border:5px double rgba(226,232,240,.7);border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.28),rgba(15,23,42,.7));box-shadow:0 0 40px rgba(34,211,238,.2)}.badge b{font-size:20px}.badge span{font-size:11px;color:rgba(255,255,255,.6)}
-select option{background:#020617}.footer{}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{transform:scale(1.04);opacity:.75}}@keyframes float{to{translate:0 -13px;rotate:5deg}}
-@media(max-width:900px){.levelOrb:before{width:210px;height:210px}.portal{display:none}.gravityLine{left:130px;right:130px}}
-`;
+function Style() { return <style>{`
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Arial;background:#03050d;color:white}.app{min-height:100vh;position:relative;overflow:hidden}.bg-grid{position:fixed;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px}.nor-lines,.sor-lines{position:fixed;inset:0;pointer-events:none}.nor-lines{background:linear-gradient(90deg,transparent 49%,rgba(103,232,249,.08) 50%,transparent 51%),linear-gradient(0deg,transparent 49%,rgba(103,232,249,.08) 50%,transparent 51%)}.sor-lines{background:repeating-linear-gradient(115deg,rgba(217,70,239,.09) 0 1px,transparent 1px 46px);transform:skewY(-4deg) scale(1.1)}.insane:before{content:"";position:fixed;inset:-20%;background:radial-gradient(circle at 15% 10%,rgba(34,211,238,.2),transparent 28%),radial-gradient(circle at 85% 30%,rgba(217,70,239,.18),transparent 32%),radial-gradient(circle at 45% 90%,rgba(99,102,241,.22),transparent 30%)}.shell{position:relative;max-width:1500px;margin:0 auto;padding:28px}.topbar,.brand,.top-actions,.pill-row,.section-title,.core-metrics,.report-actions{display:flex;align-items:center;gap:12px}.topbar{justify-content:space-between;margin-bottom:34px}.brand-icon{display:grid;place-items:center;width:54px;height:54px;border-radius:20px;border:1px solid rgba(103,232,249,.35);background:rgba(103,232,249,.1);color:#a5f3fc;box-shadow:0 0 45px rgba(103,232,249,.25)}h1{font-size:28px;margin:0}p{color:rgba(255,255,255,.62);line-height:1.6}.brand p{margin:2px 0 0;font-size:12px}.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;margin-bottom:24px}.hero-copy{padding:42px 0}.eyebrow{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(103,232,249,.25);background:rgba(103,232,249,.1);padding:9px 14px;border-radius:999px;color:#cffafe;font-size:14px}.hero-copy h2{font-size:clamp(44px,6vw,84px);line-height:.92;margin:22px 0;font-weight:950;letter-spacing:-.06em}.hero-copy p{font-size:18px;max-width:780px}.pill{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);padding:14px;border-radius:24px;display:grid;min-width:150px}.pill svg{color:#a5f3fc}.panel{position:relative;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.065);backdrop-filter:blur(18px);border-radius:30px;padding:22px;box-shadow:0 24px 80px rgba(0,0,0,.28);overflow:hidden}.boardroom .panel{background:rgba(255,255,255,.045);box-shadow:none}.core{min-height:470px}.reactor-ring{position:absolute;left:50%;top:50%;border-radius:50%;border:1px solid rgba(103,232,249,.22);transform:translate(-50%,-50%);animation:spin 18s linear infinite}.ring-one{width:360px;height:360px}.ring-two{width:250px;height:250px;animation-direction:reverse;border-color:rgba(217,70,239,.25)}.reactor-glow{position:absolute;left:50%;top:50%;width:170px;height:170px;border-radius:50%;background:rgba(103,232,249,.18);filter:blur(22px);transform:translate(-50%,-50%);animation:pulse 2s infinite}.core-top,.level-core,.core-metrics{position:relative;z-index:2}.core-top h3{font-size:42px;margin:6px 0}.core-top span{color:#67e8f9}.level-core{margin:70px auto 55px;display:grid;place-items:center;width:190px;height:190px;border-radius:50%;border:1px solid rgba(103,232,249,.34);background:rgba(0,0,0,.28);box-shadow:0 0 90px rgba(103,232,249,.28)}.level-core strong{font-size:54px}.level-core em{font-style:normal;color:rgba(255,255,255,.55);font-size:12px}.small{flex:1;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.22);padding:13px;border-radius:18px}.small span,.metric-card span{font-size:12px;color:rgba(255,255,255,.5)}.small b{display:block;margin-top:4px}.layout{display:grid;grid-template-columns:390px 1fr;gap:24px}.scanner{align-self:start;position:sticky;top:16px}.section-title{margin-bottom:16px}.section-title svg{color:#a5f3fc}.section-title h3{margin:0;font-size:18px}.demo-grid,.mode-grid,.mini-modes,.grid-two,.grid-three,.heatgrid,.tower,.beforeafter{display:grid;gap:12px}.demo-grid{grid-template-columns:repeat(2,1fr)}.mode-grid{grid-template-columns:repeat(2,1fr);margin:14px 0}.mini-modes{grid-template-columns:repeat(6,1fr)}button,.chip,.magic{border:1px solid rgba(103,232,249,.25);background:linear-gradient(135deg,rgba(103,232,249,.15),rgba(217,70,239,.13));color:white;border-radius:999px;padding:11px 14px;font-weight:800;cursor:pointer}button:hover{transform:translateY(-1px);border-color:rgba(103,232,249,.55)}.magic{display:flex;align-items:center;gap:8px}.selected,.active{background:rgba(103,232,249,.24);border-color:rgba(103,232,249,.6)!important}.scanner label{display:block;color:rgba(255,255,255,.6);font-size:13px;font-weight:700;margin-top:14px}input,textarea{width:100%;margin-top:7px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:white;border-radius:16px;padding:12px;outline:none}textarea{min-height:82px;resize:vertical}.slider{margin:15px 0}.slider div{display:flex;justify-content:space-between;color:rgba(255,255,255,.65);font-size:13px}.slider input{accent-color:#67e8f9;padding:0}.main-stack{display:grid;gap:18px}.grid-two{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-three{grid-template-columns:repeat(3,minmax(0,1fr))}.barbox{height:170px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22);border-radius:24px;padding:18px;display:flex;align-items:end;gap:12px}.barcol{flex:1;display:grid;align-items:end;text-align:center;color:rgba(255,255,255,.55);font-size:12px}.bar{border-radius:14px 14px 0 0;background:#67e8f9;box-shadow:0 0 25px rgba(103,232,249,.25)}.bar.danger{background:#e879f9}.bar.good{background:#6ee7b7}.linegraph{height:170px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(115deg,rgba(103,232,249,.06),rgba(217,70,239,.07));border-radius:24px;position:relative}.dot{position:absolute;width:24px;height:24px;border-radius:50%;background:#67e8f9;box-shadow:0 0 28px rgba(103,232,249,.7);animation:pulse 1.8s infinite}.dot span{position:absolute;top:-26px;left:-7px;font-size:12px;color:rgba(255,255,255,.7)}.metric-card div{display:flex;align-items:center;gap:9px;color:#a5f3fc}.metric-card b{font-size:36px;display:block;margin-top:12px}.heatgrid{grid-template-columns:repeat(2,1fr)}.heat{min-height:105px;border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:18px}.heat b{font-size:32px}.heat span{display:block;color:rgba(255,255,255,.62)}.gravity{height:230px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22);border-radius:24px;position:relative}.oldcat,.newcat{position:absolute;top:70px;width:36%;padding:18px;border-radius:22px;border:1px solid rgba(255,255,255,.1);font-weight:900}.oldcat{left:24px;background:rgba(217,70,239,.14);transform:skewX(-5deg)}.newcat{right:24px;background:rgba(103,232,249,.13);box-shadow:0 0 50px rgba(103,232,249,.18)}.arrow{position:absolute;left:48%;top:95px;color:#a5f3fc}.highlight{font-size:18px;line-height:1.9}.weak-word{background:rgba(217,70,239,.24);border:1px solid rgba(217,70,239,.35);border-radius:10px;padding:2px 6px;color:white}.shards{height:170px;position:relative;margin-top:15px;border-radius:24px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.2);overflow:hidden}.shards span{position:absolute;border:1px solid rgba(217,70,239,.28);background:rgba(217,70,239,.16);padding:10px 13px;border-radius:16px;font-weight:900;animation:float 2.5s infinite alternate}.fusion-orb{min-height:250px;display:grid;place-items:center;text-align:center;border-radius:28px;border:1px solid rgba(103,232,249,.22);background:radial-gradient(circle,rgba(103,232,249,.2),rgba(217,70,239,.08),transparent 70%);animation:pulse 2.4s infinite}.fusion-orb h3{font-size:28px;max-width:420px}.tower{grid-template-columns:repeat(5,1fr)}.tower div{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);border-radius:18px;padding:12px}.tower div span{display:block;color:rgba(255,255,255,.48);font-size:12px}.tower .now{border-color:#67e8f9;background:rgba(103,232,249,.18);box-shadow:0 0 35px rgba(103,232,249,.18);transform:scale(1.03)}.tower .goal{border-color:rgba(110,231,183,.5);background:rgba(110,231,183,.12)}.tower .danger{border-color:rgba(217,70,239,.25);background:rgba(217,70,239,.09);transform:skewX(-2deg)}.beforeafter{grid-template-columns:1fr 1fr}.beforeafter div{min-height:160px;border-radius:24px;border:1px solid rgba(255,255,255,.1);padding:20px;background:rgba(0,0,0,.2)}.beforeafter small{color:rgba(255,255,255,.45);display:block}.beforeafter b{font-size:22px;display:block;margin-top:12px}.radarSvg{width:100%;height:250px}.radarSvg circle{fill:none;stroke:rgba(255,255,255,.12)}.radarSvg polygon{fill:rgba(103,232,249,.22);stroke:#67e8f9;stroke-width:2;animation:pulse 2s infinite}.actions{display:grid;gap:10px}.actions p{margin:8px 0 0}.checklist{line-height:2;color:rgba(255,255,255,.68)}.cert{margin-top:14px;display:flex;gap:8px;align-items:center;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:13px;color:rgba(255,255,255,.5)}.cert.on{border-color:rgba(110,231,183,.5);background:rgba(110,231,183,.13);color:white}.bigtext{min-height:150px}.output{border:1px solid rgba(103,232,249,.18);background:rgba(103,232,249,.08);padding:12px;border-radius:16px}.strategy h3{font-size:30px;margin:0 0 10px}.strategy h3 span{color:#67e8f9}@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes pulse{50%{transform:scale(1.06);opacity:.7}}@keyframes float{to{transform:translateY(-14px) rotate(5deg)}}@media(max-width:1100px){.hero-grid,.layout,.grid-two,.grid-three{grid-template-columns:1fr}.scanner{position:relative}.mini-modes{grid-template-columns:repeat(2,1fr)}}@media(max-width:720px){.shell{padding:16px}.topbar,.top-actions{align-items:flex-start;flex-direction:column}.tower,.heatgrid,.demo-grid,.mode-grid,.beforeafter{grid-template-columns:1fr}.hero-copy h2{font-size:44px}.core-metrics{flex-direction:column}.pill-row{flex-direction:column;align-items:stretch}}
+`}</style>; }
