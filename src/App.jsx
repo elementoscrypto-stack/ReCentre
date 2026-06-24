@@ -1,224 +1,203 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState } from 'react';
 
-const signalsBase = [
-  { key: "BUY", label: "Confidence entering", value: 12, type: "up" },
-  { key: "SELL", label: "Confidence leaving", value: -4, type: "down" },
-  { key: "LOCK", label: "Subscriber retention", value: 71, type: "up", suffix: "%" },
-  { key: "LEAK", label: "Churn pressure", value: 18, type: "down", suffix: "%" },
-  { key: "FLOW", label: "Value movement", value: 83, type: "up", suffix: "%" },
-  { key: "BUILD", label: "Structure improving", value: 9, type: "up" },
-  { key: "TRUST", label: "Belief in brand", value: 74, type: "up" },
-  { key: "DRIFT", label: "Market misalignment", value: 21, type: "down" },
-  { key: "RECENTRE", label: "Return to Level 5", value: 68, type: "up", suffix: "%" },
-];
-
-const actions = [
-  { name: "Lower hardware friction", impact: "+9 Trust", detail: "Reduce purchase anxiety with bundles, financing clarity, and trade-in value." },
-  { name: "Bundle family plans", impact: "+7 Lock", detail: "Turn one-bike households into multi-user subscription anchors." },
-  { name: "Rebuild instructor-led identity", impact: "+12 Brand", detail: "Make instructors the emotional centre of the Peloton recovery story." },
-  { name: "Launch mid-market entry offer", impact: "+8 Flow", detail: "Create a lighter path into Peloton without damaging premium perception." },
-  { name: "Refocus community challenges", impact: "+6 Loyalty", detail: "Recover belonging, streaks, and shared achievement as the retention engine." },
+const signals = [
+  ['BUY', '+12', 'Confidence entering'], ['SELL', '-4', 'Confidence leaving'],
+  ['LOCK', '71%', 'Subscriber retention'], ['LEAK', '29%', 'Churn pressure'],
+  ['FLOW', '83%', 'Value movement'], ['BUILD', '+16', 'Recovery structure'],
+  ['TRUST', '74', 'Belief signal'], ['DRIFT', '18', 'Market misalignment'],
+  ['CENTRE', '82', 'Recovery alignment'], ['RISK', '21%', 'Confidence risk'],
 ];
 
 const threats = [
-  { name: "Apple Fitness+", pull: 76, reason: "Ecosystem convenience" },
-  { name: "Tonal", pull: 61, reason: "Premium connected strength" },
-  { name: "Gyms", pull: 58, reason: "Post-pandemic social return" },
-  { name: "YouTube Fitness", pull: 49, reason: "Free content pressure" },
-  { name: "Lululemon Studio", pull: 36, reason: "Lifestyle adjacency" },
+  { name: 'Apple Fitness+', pull: 88, angle: 12, label: 'ecosystem gravity' },
+  { name: 'Tonal', pull: 64, angle: 92, label: 'premium hardware' },
+  { name: 'Gyms', pull: 72, angle: 184, label: 'offline habit return' },
+  { name: 'YouTube Fitness', pull: 58, angle: 266, label: 'free content pressure' },
 ];
 
-const heatZones = [
-  ["Premium", 72],
-  ["Trust", 64],
-  ["Affordability", 41],
-  ["Motivation", 78],
-  ["Culture", 69],
-  ["Community", 74],
+const actions = [
+  { title: 'Lower hardware friction', impact: '+11 Trust', body: 'Rebuild access with lower upfront cost, refurbished bundles, and trial-led ownership.' },
+  { title: 'Bundle family plans', impact: '+8 Lock', body: 'Move Peloton from single-user equipment into household wellness infrastructure.' },
+  { title: 'Rebuild instructor identity', impact: '+12 Flow', body: 'Make community and personality the centre again, not just equipment performance.' },
+  { title: 'Corporate wellness push', impact: '+7 Growth', body: 'Position Peloton as a workplace health and retention platform.' },
 ];
+
+const certification = ['Subscriber churn stabilised', 'Hardware access simplified', 'Brand story sharpened', 'Instructor-led community revived', 'Recovery level reaches 5'];
 
 function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
 
 export default function App() {
-  const [simulation, setSimulation] = useState(0);
-  const [mode, setMode] = useState("Insane Visual");
-  const [selectedAction, setSelectedAction] = useState(actions[2]);
+  const [intensity, setIntensity] = useState(72);
+  const [churn, setChurn] = useState(29);
+  const [pricing, setPricing] = useState(62);
+  const [community, setCommunity] = useState(78);
+  const [hardware, setHardware] = useState(41);
 
-  const data = useMemo(() => {
-    const recoveryLevel = clamp(8 - Math.floor(simulation / 2), 5, 8);
-    const trust = 74 + simulation * 3;
-    const churn = clamp(18 - simulation * 2, 7, 18);
-    const recoveryProbability = clamp(68 + simulation * 5, 68, 92);
-    const confidence = clamp(72 + simulation * 4, 72, 96);
-    const drift = clamp(21 - simulation * 3, 6, 21);
-    return { recoveryLevel, trust, churn, recoveryProbability, confidence, drift };
-  }, [simulation]);
-
-  const signals = signalsBase.map((s) => {
-    if (s.key === "TRUST") return { ...s, value: data.trust };
-    if (s.key === "LEAK") return { ...s, value: data.churn };
-    if (s.key === "DRIFT") return { ...s, value: data.drift };
-    if (s.key === "RECENTRE") return { ...s, value: data.recoveryProbability };
-    if (s.key === "LOCK") return { ...s, value: clamp(71 + simulation * 3, 71, 91) };
-    return s;
-  });
+  const model = useMemo(() => {
+    const recovery = Math.round((intensity * .22) + ((100 - churn) * .24) + (pricing * .16) + (community * .24) + (hardware * .14));
+    const level = clamp(Math.round(15 - recovery / 8), 5, 12);
+    const trust = clamp(Math.round(recovery * .92), 0, 100);
+    const drift = clamp(100 - recovery, 0, 100);
+    const probability = clamp(Math.round(recovery + 9), 0, 95);
+    return { recovery, level, trust, drift, probability };
+  }, [intensity, churn, pricing, community, hardware]);
 
   return (
-    <main className={mode === "Boardroom" ? "app boardroom" : "app"}>
-      <div className="ambient one" />
-      <div className="ambient two" />
-      <div className="mesh" />
+    <div className="app">
+      <div className="ambient a1" />
+      <div className="ambient a2" />
+      <div className="ambient a3" />
+      <div className="grid" />
+      <div className="scanlines" />
 
-      <aside className="sideRail">
-        <div className="brandMark">R</div>
-        <nav>
-          {["Pulse", "Signals", "Threats", "Subscribers", "Forecast", "Memo", "Certification"].map((x, i) => (
-            <button key={x} className={i === 0 ? "navItem active" : "navItem"}>{x}</button>
-          ))}
-        </nav>
+      <aside className="rail">
+        <div className="brandOrb">R</div>
+        <div className="brandText">
+          <b>ReCentre</b>
+          <span>Peloton Recovery OS</span>
+        </div>
+        {['Company Pulse', 'Threat Rings', 'Subscriber Engine', 'Recovery Forecast', 'Board Memo', 'Certification'].map((x, i) => (
+          <button key={x} className={i === 0 ? 'nav active' : 'nav'}>{x}</button>
+        ))}
+        <div className="railCard">
+          <span>Current mission</span>
+          <b>Move Peloton to Level 5</b>
+          <small>Target: ReCentred market position</small>
+        </div>
       </aside>
 
-      <section className="surface">
+      <main className="surface">
         <header className="topbar">
           <div>
-            <p className="eyebrow">ReCentre / Peloton recovery mission</p>
-            <h1>Company Pulse</h1>
+            <p className="eyebrow">Company Pulse / Live Recovery Mission</p>
+            <h1>Peloton Recovery Intelligence</h1>
           </div>
-          <div className="topActions">
-            <button onClick={() => setMode(mode === "Boardroom" ? "Insane Visual" : "Boardroom")} className="ghostBtn">{mode} Mode</button>
-            <button onClick={() => setSimulation((x) => clamp(x + 1, 0, 6))} className="primaryBtn">Run 90-Day Recovery</button>
-            <button onClick={() => setSimulation(0)} className="ghostBtn">Reset</button>
-          </div>
+          <button className="primary">Run Recovery Simulation</button>
         </header>
 
-        <SignalTicker signals={signals} />
+        <section className="ticker">
+          {signals.map((s, i) => <Signal key={s[0]} item={s} good={i % 3 !== 1} />)}
+        </section>
 
         <section className="heroGrid">
-          <CompanyDNA data={data} />
-          <Reactor data={data} simulation={simulation} />
-          <ExecutiveIntel selectedAction={selectedAction} data={data} />
+          <div className="panel dnaPanel">
+            <PanelTitle k="01" title="Company DNA Helix" />
+            <Helix labels={['Trust', 'Price', 'Hardware', 'Community', 'Brand', 'Growth', 'Support']} />
+          </div>
+
+          <div className="reactorPanel">
+            <div className="reactorShell">
+              <div className="ring ring1" />
+              <div className="ring ring2" />
+              <div className="ring ring3" />
+              <div className="particle p1" /><div className="particle p2" /><div className="particle p3" /><div className="particle p4" />
+              <div className="coreCrystal">
+                <span>PELOTON</span>
+                <b>LEVEL {model.level}</b>
+                <em>{model.probability}% recovery probability</em>
+              </div>
+            </div>
+            <div className="reactorStats">
+              <Metric title="Trust" value={model.trust} suffix="" />
+              <Metric title="Drift" value={model.drift} suffix="%" danger />
+              <Metric title="Target" value="L5" />
+            </div>
+          </div>
+
+          <div className="panel aiPanel">
+            <PanelTitle k="02" title="Executive Intelligence" />
+            <div className="aiGlow">Today's highest ROI action</div>
+            <h2>Reduce hardware friction while rebuilding instructor-led community.</h2>
+            <p>Peloton should shift the story from premium equipment to recurring motivation, household wellness, and trusted coaching.</p>
+            <div className="impactGrid">
+              <Impact v="+11" l="Trust" /><Impact v="-6" l="Drift" /><Impact v="+9" l="Lock" />
+            </div>
+          </div>
         </section>
 
-        <section className="moduleGrid">
-          <Thesis data={data} />
-          <ThreatRings />
-          <SubscriberEngine data={data} />
-          <HardwareSplit simulation={simulation} />
-          <BrandHeatZones />
-          <RecoveryActions selectedAction={selectedAction} setSelectedAction={setSelectedAction} setSimulation={setSimulation} />
-          <Forecast data={data} simulation={simulation} />
-          <BoardMemo selectedAction={selectedAction} data={data} />
-          <Certification data={data} />
+        <section className="lowerGrid">
+          <div className="panel threatPanel">
+            <PanelTitle k="03" title="Competitor Threat Rings" />
+            <ThreatRings />
+          </div>
+
+          <div className="panel horizonPanel">
+            <PanelTitle k="04" title="90-Day Recovery Horizon" />
+            <Horizon level={model.level} />
+          </div>
+
+          <div className="panel controlsPanel">
+            <PanelTitle k="05" title="Subscriber Confidence Engine" />
+            <Control label="Intensity" value={intensity} set={setIntensity} />
+            <Control label="Churn Pressure" value={churn} set={setChurn} />
+            <Control label="Pricing Confidence" value={pricing} set={setPricing} />
+            <Control label="Community Signal" value={community} set={setCommunity} />
+            <Control label="Hardware Access" value={hardware} set={setHardware} />
+          </div>
         </section>
-      </section>
+
+        <section className="wideGrid">
+          <div className="panel riverPanel">
+            <PanelTitle k="06" title="Confidence River" />
+            <div className="river">
+              <div className="stream in"><b>Incoming confidence</b><span>BUY · GAIN · BUILD · FLOW · CREATE · ATTRACT</span></div>
+              <div className="stream out"><b>Leaving confidence</b><span>SELL · LOSS · LEAK · DECAY · BREAK · REPEL</span></div>
+            </div>
+          </div>
+
+          <div className="panel actionsPanel">
+            <PanelTitle k="07" title="Recovery Action Cards" />
+            <div className="actionList">{actions.map(a => <Action key={a.title} {...a} />)}</div>
+          </div>
+        </section>
+
+        <section className="wideGrid last">
+          <div className="panel memoPanel">
+            <PanelTitle k="08" title="AI Board Memo" />
+            <h2>Recovery thesis</h2>
+            <p>Peloton's recovery path is strongest when the company stops defending hardware as the centre of the business and instead recategorizes itself as a recurring motivation, coaching, and household wellness platform.</p>
+            <div className="memoLine"><span>Primary risk</span><b>Subscription fatigue + hardware price memory</b></div>
+            <div className="memoLine"><span>Primary opportunity</span><b>Community-led retention and lower-friction access</b></div>
+          </div>
+          <div className="panel certPanel">
+            <PanelTitle k="09" title="Level 5 Certification Path" />
+            {certification.map((c, i) => <div className="check" key={c}><span>{i < 3 ? '✓' : '○'}</span>{c}</div>)}
+          </div>
+        </section>
+      </main>
       <style>{css}</style>
-    </main>
+    </div>
   );
 }
 
-function SignalTicker({ signals }) {
-  return <div className="ticker">{signals.map((s) => <div className={`tick ${s.type}`} key={s.key}><strong>{s.key}</strong><span>{s.value > 0 && !s.suffix ? "+" : ""}{s.value}{s.suffix || ""}</span><small>{s.label}</small></div>)}</div>;
-}
+function Signal({ item, good }) { return <div className={good ? 'sig good' : 'sig bad'}><b>{item[0]}</b><span>{item[1]}</span><small>{item[2]}</small></div>; }
+function PanelTitle({ k, title }) { return <div className="panelTitle"><span>{k}</span><b>{title}</b></div>; }
+function Metric({ title, value, suffix = '', danger }) { return <div className={danger ? 'metric danger' : 'metric'}><span>{title}</span><b>{value}{suffix}</b></div>; }
+function Impact({ v, l }) { return <div className="impact"><b>{v}</b><span>{l}</span></div>; }
+function Control({ label, value, set }) { return <label className="control"><span>{label}<b>{value}</b></span><input type="range" min="0" max="100" value={value} onChange={e => set(Number(e.target.value))} /></label>; }
+function Action({ title, impact, body }) { return <div className="action"><b>{title}</b><span>{impact}</span><p>{body}</p></div>; }
 
-function Reactor({ data, simulation }) {
-  return <section className="reactorPanel">
-    <div className="ring r1" /><div className="ring r2" /><div className="ring r3" />
-    <div className="particleField">{Array.from({ length: 42 }, (_, i) => <i key={i} style={{ '--i': i }} />)}</div>
-    <div className="reactorCore">
-      <p>PELOTON</p>
-      <h2>Level {data.recoveryLevel}</h2>
-      <span>Target Level 5</span>
-      <b>{data.recoveryProbability}% recovery probability</b>
-    </div>
-    <div className="formulaStrip">BUY + TRUST = GAIN · REPAIR + RELEVANCE = GROWTH · RECENTRE = LEVEL 5</div>
-    <div className="simMeter"><span style={{ width: `${20 + simulation * 13}%` }} /></div>
-  </section>;
-}
-
-function CompanyDNA({ data }) {
-  const strands = [["Trust", data.trust], ["Brand", 76], ["Product", 68], ["Price", 43], ["Community", 81], ["Competition", 52], ["Narrative", 69]];
-  return <section className="panel dnaPanel"><Title kicker="01" title="Company DNA" />
-    <div className="dna">
-      {strands.map((s, i) => <div key={s[0]} className="gene"><span>{s[0]}</span><div><b style={{ width: `${s[1]}%` }} /></div><em>{s[1]}</em></div>)}
-    </div>
-  </section>;
-}
-
-function ExecutiveIntel({ selectedAction, data }) {
-  return <section className="panel intelPanel"><Title kicker="AI" title="Executive Intelligence" />
-    <div className="aiOrb">AI</div>
-    <h3>Today's highest ROI action</h3>
-    <h2>{selectedAction.name}</h2>
-    <p>{selectedAction.detail}</p>
-    <div className="impactStack"><span>{selectedAction.impact}</span><span>{data.confidence}% Confidence</span><span>-{data.drift} Drift</span></div>
-  </section>;
-}
-
-function Thesis({ data }) {
-  return <section className="panel wide"><Title kicker="02" title="Peloton Recovery Thesis" />
-    <h2 className="thesis">Peloton should stop selling hardware as the hero and recenter around <span>habit, community, and instructor-led confidence</span>.</h2>
-    <p className="copy">The recovery path is not simply cheaper bikes. It is restoring belief that Peloton is the most motivating fitness relationship in the home.</p>
-    <div className="miniStats"><Metric label="Current Level" value={`L${data.recoveryLevel}`} /><Metric label="Target" value="L5" /><Metric label="Trust" value={data.trust} /><Metric label="Churn Pressure" value={`${data.churn}%`} /></div>
-  </section>;
+function Helix({ labels }) {
+  return <div className="helix">{labels.map((l, i) => <div className="gene" key={l} style={{ '--i': i }}><span>{l}</span><i /></div>)}</div>;
 }
 
 function ThreatRings() {
-  return <section className="panel"><Title kicker="03" title="Competitor Threat Rings" />
-    <div className="orbitBox"><div className="pelotonDot">P</div>{threats.map((t, i) => <div className={`threat t${i}`} key={t.name}><b>{t.name}</b><span>{t.pull}</span></div>)}</div>
-  </section>;
+  return <div className="orbitBox">
+    <div className="companyDot">P</div>
+    {threats.map(t => <div key={t.name} className="threat" style={{ transform: `rotate(${t.angle}deg) translateX(${70 + t.pull/3}px) rotate(-${t.angle}deg)` }}><b>{t.name}</b><small>{t.label}</small></div>)}
+    <div className="orbit o1"/><div className="orbit o2"/><div className="orbit o3"/>
+  </div>;
 }
 
-function SubscriberEngine({ data }) {
-  return <section className="panel"><Title kicker="04" title="Subscriber Confidence Engine" />
-    {[['LOCK', 82], ['LEAK', data.churn], ['COMMUNITY', 76], ['PRICING TRUST', 47]].map(([l, v]) => <div className="confidenceRow" key={l}><span>{l}</span><div><b style={{ width: `${v}%` }} /></div><em>{v}{l === 'LEAK' ? '%' : ''}</em></div>)}
-  </section>;
+function Horizon({ level }) {
+  const points = [12, 10, 9, level, Math.max(5, level - 1), 5];
+  return <div className="horizon"><svg viewBox="0 0 500 180" preserveAspectRatio="none">
+    <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stopColor="#ff4fd8"/><stop offset=".55" stopColor="#22d3ee"/><stop offset="1" stopColor="#7cffc7"/></linearGradient></defs>
+    <path d="M0 150 C80 115, 100 135, 160 105 C230 65, 250 100, 310 70 C375 40, 420 55, 500 28" fill="none" stroke="url(#g)" strokeWidth="5"/>
+    <path d="M0 180 L0 150 C80 115, 100 135, 160 105 C230 65, 250 100, 310 70 C375 40, 420 55, 500 28 L500 180 Z" fill="rgba(34,211,238,.13)"/>
+  </svg><div className="horizonLabels">{points.map((p,i)=><span key={i}>L{p}</span>)}</div></div>;
 }
-
-function HardwareSplit({ simulation }) {
-  const hardware = clamp(42 + simulation * 4, 42, 66); const subscription = clamp(76 + simulation * 3, 76, 94);
-  return <section className="panel"><Title kicker="05" title="Hardware vs Subscription Split" />
-    <div className="split"><div><span>Hardware Friction</span><h2>{hardware}%</h2><p>Improving when price anxiety is reduced.</p></div><div><span>Subscription Strength</span><h2>{subscription}%</h2><p>Core recovery asset: habit, classes, community.</p></div></div>
-  </section>;
-}
-
-function BrandHeatZones() {
-  return <section className="panel"><Title kicker="06" title="Brand Heat Zones" />
-    <div className="heat">{heatZones.map(([l, v]) => <div key={l} style={{ background: `linear-gradient(135deg, rgba(0,229,255,${v/150}), rgba(255,46,220,${(100-v)/130}))` }}><b>{v}</b><span>{l}</span></div>)}</div>
-  </section>;
-}
-
-function RecoveryActions({ selectedAction, setSelectedAction, setSimulation }) {
-  return <section className="panel wide"><Title kicker="07" title="Recovery Actions With Impact" />
-    <div className="actionGrid">{actions.map((a) => <button key={a.name} onClick={() => { setSelectedAction(a); setSimulation((x) => clamp(x + 1, 0, 6)); }} className={selectedAction.name === a.name ? "action active" : "action"}><strong>{a.name}</strong><span>{a.impact}</span><small>{a.detail}</small></button>)}</div>
-  </section>;
-}
-
-function Forecast({ data, simulation }) {
-  const points = [8, 8, 7, 7, 6, 6, 5].slice(0, 4 + simulation);
-  return <section className="panel"><Title kicker="08" title="90-Day Recovery Forecast" />
-    <div className="horizon">{points.map((p, i) => <div key={i} className="mount" style={{ height: `${120 - p * 8}px` }}><span>L{p}</span></div>)}</div>
-    <p className="copy">Projected route: Level {data.recoveryLevel} → Level 5 through subscriber confidence and lower hardware friction.</p>
-  </section>;
-}
-
-function BoardMemo({ selectedAction, data }) {
-  return <section className="panel"><Title kicker="09" title="AI Board Memo" />
-    <p className="memo">Recommendation: prioritize <b>{selectedAction.name}</b>. This action has the strongest immediate effect on trust recovery, churn pressure, and brand coherence. The expected board-level outcome is a cleaner route from Level {data.recoveryLevel} to Level 5.</p>
-    <button className="ghostBtn full">Generate Board Pack</button>
-  </section>;
-}
-
-function Certification({ data }) {
-  const checklist = [['Trust above 85', data.trust >= 85], ['Churn below 10%', data.churn <= 10], ['Recovery probability above 85%', data.recoveryProbability >= 85], ['Company Level 5', data.recoveryLevel <= 5]];
-  return <section className="panel"><Title kicker="10" title="ReCentre Certification Path" />
-    <div className="badge">LEVEL 5<br/><span>RECENTRED</span></div>
-    {checklist.map(([t, ok]) => <div className="check" key={t}><b>{ok ? '✓' : '○'}</b><span>{t}</span></div>)}
-  </section>;
-}
-
-function Title({ kicker, title }) { return <div className="title"><span>{kicker}</span><h3>{title}</h3></div>; }
-function Metric({ label, value }) { return <div className="metric"><small>{label}</small><b>{value}</b></div>; }
 
 const css = `
-*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial;background:#02040b;color:#fff}.app{min-height:100vh;display:grid;grid-template-columns:92px 1fr;position:relative;overflow-x:hidden}.mesh{position:fixed;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:74px 74px;mask-image:radial-gradient(circle at 50% 20%,#000 0,transparent 72%);pointer-events:none}.ambient{position:fixed;border-radius:999px;filter:blur(70px);opacity:.55;pointer-events:none}.one{width:620px;height:620px;background:#00e5ff33;left:5%;top:-15%}.two{width:720px;height:720px;background:#ff2edc30;right:-10%;top:10%}.sideRail{border-right:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);backdrop-filter:blur(24px);padding:22px 14px;z-index:5}.brandMark{height:54px;width:54px;border-radius:20px;display:grid;place-items:center;font-size:28px;font-weight:1000;background:linear-gradient(135deg,#00e5ff55,#ff2edc44);box-shadow:0 0 45px #00e5ff44}nav{margin-top:34px;display:grid;gap:12px}.navItem{writing-mode:vertical-rl;min-height:82px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.035);color:#ffffff99;font-weight:800}.navItem.active{color:white;border-color:#00e5ff66;background:#00e5ff18}.surface{z-index:2;padding:28px;max-width:1600px;width:100%;margin:0 auto}.topbar{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:18px}.eyebrow{margin:0;color:#00e5ff;text-transform:uppercase;letter-spacing:.18em;font-size:12px;font-weight:900}.topbar h1{font-size:54px;line-height:.9;margin:6px 0 0;letter-spacing:-.06em}.topActions{display:flex;gap:10px;flex-wrap:wrap}.primaryBtn,.ghostBtn{border:1px solid rgba(0,229,255,.35);border-radius:999px;padding:12px 18px;color:white;font-weight:900;background:linear-gradient(135deg,#00e5ff33,#ff2edc22);box-shadow:0 0 35px #00e5ff22;cursor:pointer}.ghostBtn{background:rgba(255,255,255,.045);box-shadow:none}.full{width:100%;justify-content:center}.ticker{display:flex;gap:10px;overflow:auto;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:28px;background:rgba(255,255,255,.045);backdrop-filter:blur(22px);margin-bottom:18px}.tick{min-width:145px;padding:12px 14px;border-radius:20px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08)}.tick strong{display:block;font-size:13px;color:#fff}.tick span{font-size:22px;font-weight:1000}.tick small{display:block;color:#ffffff80}.tick.up span{color:#00e5ff}.tick.down span{color:#ff5edc}.heroGrid{display:grid;grid-template-columns:300px minmax(440px,1fr) 330px;gap:18px;margin-bottom:18px}.panel,.reactorPanel{position:relative;border:1px solid rgba(255,255,255,.09);border-radius:34px;background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.03));box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 28px 80px rgba(0,0,0,.35);backdrop-filter:blur(26px);padding:22px;overflow:hidden}.panel:before,.reactorPanel:before{content:"";position:absolute;inset:-1px;background:radial-gradient(circle at 15% 0,#00e5ff22,transparent 36%),radial-gradient(circle at 85% 20%,#ff2edc18,transparent 34%);pointer-events:none}.title{position:relative;display:flex;align-items:center;gap:12px;margin-bottom:18px}.title span{height:34px;width:34px;border-radius:13px;display:grid;place-items:center;color:#00e5ff;font-weight:1000;background:#00e5ff16;border:1px solid #00e5ff33}.title h3{margin:0;font-size:16px}.reactorPanel{min-height:560px;display:grid;place-items:center}.ring{position:absolute;border-radius:50%;border:1px solid #00e5ff33;box-shadow:0 0 55px #00e5ff1f}.r1{width:520px;height:520px;animation:spin 28s linear infinite}.r2{width:390px;height:390px;border-color:#ff2edc33;animation:spin 18s linear reverse infinite}.r3{width:270px;height:270px;border-style:dashed;animation:spin 12s linear infinite}.reactorCore{position:relative;width:220px;height:220px;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,#00e5ff33,#02040b 68%);border:1px solid #00e5ff77;box-shadow:0 0 100px #00e5ff55}.reactorCore p,.reactorCore h2,.reactorCore span,.reactorCore b{margin:0;display:block}.reactorCore p{font-size:13px;letter-spacing:.2em;color:#00e5ff}.reactorCore h2{font-size:48px;letter-spacing:-.06em}.reactorCore span{color:#ffffff99}.reactorCore b{color:#fff;font-size:12px}.particleField i{position:absolute;width:3px;height:3px;border-radius:50%;background:#00e5ff;left:50%;top:50%;animation:particle 4s linear infinite;animation-delay:calc(var(--i)*-.09s);transform:rotate(calc(var(--i)*19deg)) translateX(260px)}.formulaStrip{position:absolute;bottom:42px;left:32px;right:32px;text-align:center;color:#ffffff88;font-size:12px;letter-spacing:.08em}.simMeter{position:absolute;left:70px;right:70px;bottom:24px;height:7px;border-radius:99px;background:#ffffff12;overflow:hidden}.simMeter span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#00e5ff,#ff2edc)}.gene,.confidenceRow{position:relative;display:grid;grid-template-columns:90px 1fr 35px;align-items:center;gap:10px;margin:14px 0;color:#ffffffb5}.gene div,.confidenceRow div{height:9px;border-radius:99px;background:#ffffff12;overflow:hidden}.gene b,.confidenceRow b{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#00e5ff,#ff2edc)}.aiOrb{height:86px;width:86px;border-radius:32px;display:grid;place-items:center;font-weight:1000;font-size:28px;background:linear-gradient(135deg,#00e5ff44,#ff2edc33);border:1px solid #00e5ff55;box-shadow:0 0 60px #00e5ff44}.intelPanel h3{color:#ffffff88}.intelPanel h2{font-size:28px;letter-spacing:-.04em}.intelPanel p,.copy,.memo{color:#ffffffaa;line-height:1.6}.impactStack{display:grid;gap:8px}.impactStack span{padding:10px 12px;border-radius:16px;background:#ffffff0b;border:1px solid #ffffff12}.moduleGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.wide{grid-column:span 2}.thesis{font-size:32px;line-height:1.08;letter-spacing:-.05em}.thesis span{color:#00e5ff}.miniStats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{padding:14px;border-radius:18px;background:#0000003b;border:1px solid #ffffff14}.metric small{display:block;color:#ffffff75}.metric b{font-size:24px}.orbitBox{height:310px;position:relative;border-radius:28px;border:1px solid #ffffff10;background:radial-gradient(circle at 50% 50%,#00e5ff22,transparent 22%),#0000002e}.pelotonDot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:70px;width:70px;border-radius:50%;display:grid;place-items:center;background:#00e5ff22;border:1px solid #00e5ff66;font-size:32px;font-weight:1000}.threat{position:absolute;border:1px solid #ff2edc44;background:#ff2edc14;border-radius:18px;padding:10px;min-width:92px}.threat b{display:block;font-size:11px}.threat span{color:#ff8ee8;font-weight:1000}.t0{left:9%;top:16%}.t1{right:12%;top:18%}.t2{left:12%;bottom:14%}.t3{right:9%;bottom:15%}.t4{left:39%;top:7%}.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}.split div{padding:18px;border-radius:24px;background:#00000030;border:1px solid #ffffff12}.split h2{font-size:42px;margin:8px 0}.heat{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.heat div{min-height:95px;border-radius:24px;padding:18px;border:1px solid #ffffff16}.heat b{font-size:30px}.heat span{display:block;color:#ffffffb0}.actionGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.action{text-align:left;border:1px solid #ffffff12;background:#ffffff08;color:white;border-radius:22px;padding:15px;cursor:pointer}.action.active{border-color:#00e5ff77;background:#00e5ff18;box-shadow:0 0 40px #00e5ff22}.action strong,.action span,.action small{display:block}.action span{margin:8px 0;color:#00e5ff;font-weight:1000}.action small{color:#ffffff88;line-height:1.4}.horizon{height:190px;border-radius:28px;border:1px solid #ffffff10;background:linear-gradient(180deg,transparent,#00e5ff10);display:flex;align-items:flex-end;gap:10px;padding:18px}.mount{flex:1;min-height:50px;border-radius:20px 20px 8px 8px;background:linear-gradient(180deg,#00e5ff,#ff2edc);display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-weight:1000}.badge{margin:auto auto 16px;width:150px;height:150px;border-radius:44px;display:grid;place-items:center;text-align:center;font-weight:1000;background:linear-gradient(135deg,#00e5ff28,#ff2edc22);border:1px solid #00e5ff55;box-shadow:0 0 60px #00e5ff33}.badge span{color:#00e5ff}.check{display:flex;gap:10px;align-items:center;margin:10px 0;padding:10px;border-radius:16px;background:#ffffff08}.check b{color:#00e5ff}@keyframes spin{to{transform:rotate(360deg)}}@keyframes particle{from{opacity:0;transform:rotate(calc(var(--i)*19deg)) translateX(300px) scale(.5)}50%{opacity:1}to{opacity:0;transform:rotate(calc(var(--i)*19deg + 90deg)) translateX(70px) scale(1.2)}}.boardroom .ambient,.boardroom .mesh,.boardroom .particleField{display:none}.boardroom .panel,.boardroom .reactorPanel{background:#0b1020;box-shadow:none}@media(max-width:1180px){.heroGrid,.moduleGrid{grid-template-columns:1fr}.wide{grid-column:auto}.actionGrid{grid-template-columns:1fr 1fr}.sideRail{display:none}.app{grid-template-columns:1fr}.topbar{display:block}.topActions{margin-top:18px}.miniStats{grid-template-columns:1fr 1fr}}@media(max-width:640px){.surface{padding:16px}.topbar h1{font-size:42px}.actionGrid,.split,.heat{grid-template-columns:1fr}.reactorPanel{min-height:470px}.ring.r1{width:390px;height:390px}.ring.r2{width:300px;height:300px}.ticker{border-radius:22px}.tick{min-width:128px}}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Arial;background:#030613;color:white} .app{min-height:100vh;position:relative;overflow:hidden;display:flex}.grid{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(circle at 55% 35%,#000,transparent 85%)}.scanlines{position:fixed;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 5px);pointer-events:none}.ambient{position:fixed;border-radius:50%;filter:blur(70px);opacity:.6}.a1{width:520px;height:520px;background:#0ea5e9;left:-170px;top:-130px}.a2{width:620px;height:620px;background:#d946ef;right:-210px;top:180px}.a3{width:520px;height:520px;background:#14f195;left:42%;bottom:-260px;opacity:.24}.rail{position:fixed;left:22px;top:22px;bottom:22px;width:250px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));backdrop-filter:blur(24px);border-radius:34px;padding:22px;z-index:5;box-shadow:0 30px 80px rgba(0,0,0,.35)}.brandOrb{width:56px;height:56px;border-radius:20px;background:radial-gradient(circle,#fff,#22d3ee 45%,#7c3aed);display:grid;place-items:center;color:#07111f;font-weight:1000;font-size:28px;box-shadow:0 0 60px rgba(34,211,238,.55)}.brandText{margin:14px 0 24px;display:flex;flex-direction:column}.brandText b{font-size:24px}.brandText span,.railCard span,small{color:rgba(255,255,255,.55)}.nav{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:rgba(255,255,255,.65);padding:13px 14px;border-radius:18px;margin:3px 0;font-weight:800}.nav.active,.nav:hover{background:rgba(34,211,238,.13);border-color:rgba(34,211,238,.25);color:#fff}.railCard{position:absolute;left:18px;right:18px;bottom:18px;border:1px solid rgba(34,211,238,.18);background:rgba(34,211,238,.08);padding:16px;border-radius:24px;display:flex;flex-direction:column;gap:6px}.surface{width:calc(100% - 300px);margin-left:300px;padding:26px 28px 40px;position:relative;z-index:2}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.eyebrow{color:#67e8f9;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:900}.topbar h1{font-size:46px;line-height:.95;margin:0;letter-spacing:-.05em}.primary{border:0;color:#06111b;background:linear-gradient(135deg,#fff,#67e8f9,#f0abfc);font-weight:1000;padding:15px 20px;border-radius:999px;box-shadow:0 0 50px rgba(34,211,238,.35)}.ticker{display:grid;grid-template-columns:repeat(10,minmax(110px,1fr));gap:10px;margin-bottom:18px;overflow:auto}.sig{min-width:110px;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:12px;background:rgba(255,255,255,.055)}.sig b{display:block}.sig span{font-size:20px;font-weight:1000}.sig.good span{color:#7cffc7}.sig.bad span{color:#ff76df}.sig small{display:block;font-size:10px}.heroGrid{display:grid;grid-template-columns:270px 1fr 320px;gap:18px;min-height:520px}.panel,.reactorPanel{border:1px solid rgba(255,255,255,.1);background:linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.035));backdrop-filter:blur(28px);border-radius:34px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 24px 80px rgba(0,0,0,.35);position:relative;overflow:hidden}.panel{padding:20px}.panel:before,.reactorPanel:before{content:"";position:absolute;inset:-2px;background:radial-gradient(circle at 20% 10%,rgba(34,211,238,.16),transparent 32%),radial-gradient(circle at 80% 20%,rgba(217,70,239,.16),transparent 34%);pointer-events:none}.panelTitle{position:relative;z-index:1;display:flex;align-items:center;gap:10px;margin-bottom:16px}.panelTitle span{width:34px;height:34px;border-radius:12px;background:rgba(34,211,238,.13);display:grid;place-items:center;color:#67e8f9;font-weight:1000}.panelTitle b{font-size:15px}.reactorPanel{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}.reactorShell{width:430px;height:430px;max-width:100%;position:relative;display:grid;place-items:center}.ring{position:absolute;border-radius:50%;border:1px solid rgba(103,232,249,.3);box-shadow:0 0 55px rgba(34,211,238,.18)}.ring1{inset:18px;animation:spin 22s linear infinite}.ring2{inset:58px;border-color:rgba(240,171,252,.35);animation:spin 16s linear infinite reverse}.ring3{inset:102px;border-style:dashed;animation:spin 12s linear infinite}.coreCrystal{width:190px;height:190px;background:linear-gradient(135deg,rgba(34,211,238,.3),rgba(217,70,239,.22));clip-path:polygon(50% 0,92% 25%,92% 75%,50% 100%,8% 75%,8% 25%);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;filter:drop-shadow(0 0 45px rgba(34,211,238,.45));animation:breathe 3s ease-in-out infinite}.coreCrystal span{font-size:13px;letter-spacing:.18em;color:#cffafe}.coreCrystal b{font-size:44px;line-height:1}.coreCrystal em{font-size:12px;color:rgba(255,255,255,.7);font-style:normal}.particle{position:absolute;width:10px;height:10px;border-radius:50%;background:#67e8f9;box-shadow:0 0 22px #67e8f9;animation:orbit 5s linear infinite}.p1{animation-delay:0s}.p2{animation-delay:-1.2s}.p3{animation-delay:-2.5s}.p4{animation-delay:-3.8s}.reactorStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}.metric{background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:20px}.metric span{color:rgba(255,255,255,.55);font-size:12px}.metric b{display:block;font-size:26px}.metric.danger b{color:#ff76df}.helix{height:420px;position:relative;margin-top:10px}.gene{--x:calc(sin(var(--i))*30px);position:absolute;left:20px;right:20px;top:calc(18px + var(--i)*54px);height:32px;border-radius:999px;background:linear-gradient(90deg,rgba(34,211,238,.16),rgba(217,70,239,.12));border:1px solid rgba(255,255,255,.1);transform:translateX(calc((var(--i) - 3)*7px));display:flex;align-items:center;justify-content:space-between;padding:0 12px}.gene i{width:10px;height:10px;border-radius:50%;background:#67e8f9;box-shadow:0 0 16px #67e8f9}.aiPanel h2,.memoPanel h2{font-size:28px;line-height:1.05;letter-spacing:-.04em}.aiPanel p,.memoPanel p,.action p{color:rgba(255,255,255,.62);line-height:1.6}.aiGlow{display:inline-flex;padding:8px 11px;border-radius:999px;background:rgba(124,255,199,.12);color:#7cffc7;font-weight:900;font-size:12px}.impactGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}.impact{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:12px}.impact b{font-size:24px;color:#7cffc7}.impact span{display:block;color:rgba(255,255,255,.55);font-size:12px}.lowerGrid{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:18px;margin-top:18px}.orbitBox{height:310px;position:relative;display:grid;place-items:center}.companyDot{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#fff,#67e8f9);color:#07111f;font-weight:1000;font-size:30px;z-index:2}.orbit{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.1)}.o1{width:160px;height:160px}.o2{width:230px;height:230px}.o3{width:300px;height:300px}.threat{position:absolute;left:50%;top:50%;width:116px;margin-left:-58px;margin-top:-25px;border:1px solid rgba(240,171,252,.25);background:rgba(217,70,239,.12);border-radius:18px;padding:9px;text-align:center;z-index:3}.threat b{font-size:12px}.threat small{display:block;font-size:10px}.horizon{height:310px;position:relative}.horizon svg{width:100%;height:250px}.horizonLabels{display:flex;justify-content:space-between;color:rgba(255,255,255,.65);font-weight:900}.control{display:block;margin:12px 0}.control span{display:flex;justify-content:space-between;color:rgba(255,255,255,.66);font-size:13px;font-weight:800}.control input{width:100%;accent-color:#67e8f9}.wideGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.river{display:grid;grid-template-columns:1fr 1fr;gap:14px}.stream{min-height:130px;border-radius:26px;border:1px solid rgba(255,255,255,.1);padding:18px;position:relative;overflow:hidden}.stream:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(100deg,transparent 0 18px,rgba(255,255,255,.08) 18px 20px);animation:river 6s linear infinite}.stream.in{background:linear-gradient(135deg,rgba(34,211,238,.13),rgba(124,255,199,.08))}.stream.out{background:linear-gradient(135deg,rgba(217,70,239,.13),rgba(255,80,120,.06))}.stream b,.stream span{position:relative;z-index:1;display:block}.stream span{margin-top:16px;color:rgba(255,255,255,.6)}.actionList{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.action{border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.22);border-radius:22px;padding:14px}.action span{float:right;color:#7cffc7;font-weight:1000}.memoLine,.check{display:flex;justify-content:space-between;gap:14px;border-top:1px solid rgba(255,255,255,.08);padding:14px 0}.memoLine span{color:rgba(255,255,255,.55)}.check{justify-content:flex-start;align-items:center;color:rgba(255,255,255,.76)}.check span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(124,255,199,.13);color:#7cffc7;font-weight:1000}@keyframes spin{to{transform:rotate(360deg)}}@keyframes breathe{50%{transform:scale(1.06);filter:drop-shadow(0 0 80px rgba(34,211,238,.75))}}@keyframes orbit{from{transform:rotate(0deg) translateX(205px) rotate(0deg)}to{transform:rotate(360deg) translateX(205px) rotate(-360deg)}}@keyframes river{to{background-position:160px 0}}@media(max-width:1180px){.rail{position:relative;width:auto;left:auto;top:auto;bottom:auto;margin:16px}.app{display:block}.surface{margin-left:0;width:100%;padding:16px}.heroGrid,.lowerGrid,.wideGrid{grid-template-columns:1fr}.ticker{grid-template-columns:repeat(5, minmax(110px,1fr))}.railCard{position:static;margin-top:18px}.topbar{display:block}.topbar h1{font-size:38px}}@media(max-width:680px){.ticker{grid-template-columns:repeat(2,1fr)}.reactorShell{width:330px;height:330px}.heroGrid{min-height:auto}.river,.actionList{grid-template-columns:1fr}.topbar h1{font-size:34px}.surface{padding:12px}}
 `;
