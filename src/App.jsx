@@ -1,199 +1,244 @@
 import React, { useMemo, useState } from 'react';
 
-const demoCompanies = {
-  Peloton: { sector: 'Consumer Fitness', level: 8, trust: 71, momentum: 54, position: 46, risk: 39, flow: 68, lock: 62, value: 57, drift: 42 },
-  Nokia: { sector: 'Network Infrastructure', level: 7, trust: 76, momentum: 58, position: 61, risk: 32, flow: 72, lock: 70, value: 66, drift: 34 },
-  Apple: { sector: 'Consumer Technology', level: 3, trust: 91, momentum: 86, position: 94, risk: 10, flow: 88, lock: 92, value: 93, drift: 12 },
-  WeWork: { sector: 'Flexible Workspaces', level: 12, trust: 38, momentum: 24, position: 29, risk: 78, flow: 33, lock: 31, value: 35, drift: 81 },
-  BlackBerry: { sector: 'Cybersecurity', level: 6, trust: 69, momentum: 51, position: 55, risk: 35, flow: 64, lock: 58, value: 62, drift: 37 },
+const DEMOS = {
+  Peloton: { sector: 'Consumer Fitness', level: 9, trust: 52, drift: 48, growth: 39, value: 57, risk: 41 },
+  Nokia: { sector: 'Network Technology', level: 7, trust: 66, drift: 31, growth: 48, value: 64, risk: 29 },
+  WeWork: { sector: 'Flexible Workspace', level: 12, trust: 35, drift: 72, growth: 26, value: 38, risk: 74 },
+  BlackBerry: { sector: 'Cybersecurity', level: 6, trust: 71, drift: 24, growth: 52, value: 69, risk: 22 },
+  Apple: { sector: 'Consumer Technology', level: 3, trust: 88, drift: 11, growth: 78, value: 91, risk: 9 },
 };
 
-const signals = [
-  ['BUY', '+12', 'Confidence entering'], ['SELL', '-4', 'Confidence leaving'], ['GAIN', '+8', 'Trust increasing'],
-  ['LOSS', '-2', 'Trust decreasing'], ['BUILD', '+6', 'Structure strengthening'], ['DRIFT', '+18', 'Market misalignment'],
-  ['TRUST', '74', 'Belief in company'], ['VALUE', '+19', 'Perceived usefulness'], ['FLOW', '81%', 'Healthy value movement'],
-  ['LOCK', '92%', 'Retention signal'], ['LEAD', '+14', 'Category leadership'], ['RISK', '18%', 'Failure pressure'],
+const SIGNALS = [
+  ['BUY', '+12', 'Confidence entering'], ['SELL', '-4', 'Confidence leaving'],
+  ['GAIN', '+8', 'Trust increasing'], ['LOSS', '-2', 'Trust decreasing'],
+  ['BUILD', '+6', 'Structure strengthening'], ['DRIFT', '+18', 'Market misalignment'],
+  ['TRUST', '74', 'Belief entering'], ['DOUBT', '26', 'Belief leaving'],
+  ['FLOW', '83%', 'Healthy movement'], ['LOCK', '91%', 'Customer retention'],
+  ['VALUE', '+22', 'Perceived usefulness'], ['RISK', '18%', 'Failure probability'],
 ];
 
-const opportunities = ['New Product', 'New Audience', 'Partnership', 'Pricing', 'AI Layer', 'Acquisition', 'Rebrand'];
-const dna = ['Trust', 'Brand', 'Product', 'Price', 'Audience', 'Narrative', 'Support', 'Competition', 'Innovation'];
-const timeline = ['Failure Signal', 'Market Drift', 'Audience Leak', 'Recovery Plan', 'New Category', 'Level 5'];
+const IN_FLOW = ['BUY', 'GAIN', 'BUILD', 'FLOW', 'CREATE', 'ATTRACT', 'LOCK', 'TRUST'];
+const OUT_FLOW = ['SELL', 'LOSS', 'LEAK', 'DECAY', 'BREAK', 'REPEL', 'DOUBT', 'DRIFT'];
+const OPPS = ['Rebrand', 'New Audience', 'Pricing Reset', 'Partnership', 'Product Focus', 'AI Layer', 'Enterprise Move', 'Trust Campaign'];
+const DNA = ['Brand', 'Market', 'Audience', 'Pricing', 'Narrative', 'Product', 'Support', 'Innovation'];
 
 export default function App() {
-  const [companyName, setCompanyName] = useState('Peloton');
-  const [visualMode, setVisualMode] = useState('Insane Visual');
-  const [step, setStep] = useState(0);
-  const company = demoCompanies[companyName];
+  const [company, setCompany] = useState('Peloton');
+  const [view, setView] = useState('Insane Visual Mode');
+  const [boost, setBoost] = useState(0);
+  const data = DEMOS[company];
 
-  const score = useMemo(() => {
-    const base = Math.round((company.trust + company.momentum + company.position + company.flow + company.lock + company.value + (100 - company.risk) + (100 - company.drift)) / 8);
-    const improved = Math.min(100, base + step * 4);
-    const level = Math.max(5, company.level - step);
-    return { base, improved, level, probability: Math.min(96, 48 + step * 9 + Math.round(company.trust / 6)) };
-  }, [company, step]);
+  const pulse = useMemo(() => {
+    const recoveredLevel = Math.max(5, data.level - boost);
+    const trust = Math.min(99, data.trust + boost * 7);
+    const drift = Math.max(4, data.drift - boost * 8);
+    const recovery = Math.min(96, 100 - recoveredLevel * 4 + boost * 7);
+    const status = recoveredLevel <= 5 ? 'Level 5 ReCentred' : recoveredLevel <= 7 ? 'Recovery Motion' : recoveredLevel <= 10 ? 'Market Drift' : 'Critical Recovery';
+    return { recoveredLevel, trust, drift, recovery, status };
+  }, [data, boost]);
 
-  const runRecovery = () => setStep((s) => Math.min(4, s + 1));
-  const resetRecovery = () => setStep(0);
+  function runRecovery() {
+    setBoost((b) => (b >= 5 ? 0 : b + 1));
+  }
 
   return (
-    <main className="rc-shell">
-      <div className="ambient-grid" />
-      <div className="orb orb-a" />
-      <div className="orb orb-b" />
-      <div className="orb orb-c" />
+    <div className="app">
+      <div className="spaceGrid" />
+      <div className="aurora a1" />
+      <div className="aurora a2" />
+      <div className="aurora a3" />
 
-      <header className="topbar">
-        <div className="brand-block">
-          <div className="brand-mark">R</div>
+      <aside className="sidebar">
+        <div className="brandMark">RC</div>
+        <div>
+          <h1>ReCentre</h1>
+          <p>The operating system for company recovery</p>
+        </div>
+        <nav>
+          {['Company Pulse', 'Recovery Scanner', 'Market Signals', 'Category Studio', 'Recovery Lab', 'Executive Reports', 'AI Copilot'].map((item, i) => (
+            <button key={item} className={i === 0 ? 'navActive' : ''}>{item}</button>
+          ))}
+        </nav>
+        <div className="sideCard">
+          <span>Today’s Focus</span>
+          <strong>Reduce drift, increase trust, return to Level 5.</strong>
+        </div>
+      </aside>
+
+      <main className="surface">
+        <header className="topbar">
           <div>
-            <h1>ReCentre</h1>
-            <p>Company Pulse • Recovery Operating System</p>
+            <p className="eyebrow">Company Pulse</p>
+            <h2>Recover. Rebuild. ReCentre.</h2>
           </div>
-        </div>
-        <div className="top-actions">
-          <select value={companyName} onChange={(e) => { setCompanyName(e.target.value); setStep(0); }}>
-            {Object.keys(demoCompanies).map((name) => <option key={name}>{name}</option>)}
-          </select>
-          <button onClick={() => setVisualMode(visualMode === 'Insane Visual' ? 'Boardroom' : 'Insane Visual')}>{visualMode}</button>
-          <button className="primary" onClick={runRecovery}>Run Recovery</button>
-        </div>
-      </header>
+          <div className="controls">
+            <select value={company} onChange={(e) => { setCompany(e.target.value); setBoost(0); }}>
+              {Object.keys(DEMOS).map((x) => <option key={x}>{x}</option>)}
+            </select>
+            <button onClick={() => setView(view === 'Boardroom Mode' ? 'Insane Visual Mode' : 'Boardroom Mode')}>{view}</button>
+            <button className="primary" onClick={runRecovery}>Run Recovery Simulation</button>
+          </div>
+        </header>
 
-      <section className="signal-ribbon">
-        <div className="ticker-track">
-          {[...signals, ...signals].map(([name, value, meaning], i) => (
-            <div className={`signal ${value.startsWith('-') || name === 'DRIFT' || name === 'RISK' ? 'negative' : 'positive'}`} key={name + i}>
-              <strong>{name}</strong><span>{value}</span><em>{meaning}</em>
+        <section className="ticker">
+          {SIGNALS.map(([name, val, desc]) => (
+            <div className="tick" key={name}>
+              <b>{name}</b><span>{val}</span><small>{desc}</small>
             </div>
           ))}
-        </div>
-      </section>
-
-      <section className="surface">
-        <aside className="left-rail panel fused">
-          <div className="section-title"><span>01</span><h2>Company DNA</h2></div>
-          <div className="dna-helix">
-            {dna.map((item, i) => {
-              const value = [company.trust, 66, company.position, 58, company.lock, company.value, company.flow, 100-company.risk, company.momentum][i];
-              return (
-                <div className="dna-row" key={item} style={{ '--v': value }}>
-                  <b>{item}</b><div className="dna-bar"><i /></div><span>{value}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="confidence-river">
-            <h3>Confidence River</h3>
-            <div className="river">
-              <span>BUY</span><span>BUILD</span><span>GAIN</span><span>FLOW</span><span>CREATE</span>
-            </div>
-            <div className="leak">
-              <span>SELL</span><span>LOSS</span><span>LEAK</span><span>DECAY</span>
-            </div>
-          </div>
-        </aside>
-
-        <section className="centre-stage">
-          <div className="hero-copy">
-            <div className="eyebrow">Executive Pulse</div>
-            <h2>Recover. Rebuild. ReCentre.</h2>
-            <p>Every company drifts. ReCentre turns live market signals into a recovery path toward Level 5.</p>
-          </div>
-
-          <div className="reactor-wrap">
-            <div className="ring ring-1" />
-            <div className="ring ring-2" />
-            <div className="ring ring-3" />
-            <div className="particle p1" /><div className="particle p2" /><div className="particle p3" />
-            <div className="reactor-core">
-              <span>{company.sector}</span>
-              <h3>{companyName}</h3>
-              <div className="score">{score.improved}</div>
-              <p>Recovery Score</p>
-              <div className="level-pill">Level {score.level} → Target 5</div>
-            </div>
-          </div>
-
-          <div className="horizon panel fused">
-            <div className="section-title"><span>02</span><h2>Recovery Horizon</h2></div>
-            <div className="mountain-chart">
-              {[12, 10, 8, 7, 6, 5].map((l, i) => (
-                <div key={i} className="peak" style={{ '--h': `${(16-l)*12 + 24}px` }}>
-                  <i /> <b>L{Math.max(5, l - step)}</b>
-                </div>
-              ))}
-            </div>
-          </div>
         </section>
 
-        <aside className="right-rail panel fused">
-          <div className="section-title"><span>03</span><h2>Recovery AI</h2></div>
-          <div className="ai-card">
-            <p>Today's highest impact action</p>
-            <h3>Increase Trust, reduce Drift, rebuild the category promise.</h3>
-            <div className="impact-grid">
-              <span>+12 Trust</span><span>-8 Drift</span><span>+6 Growth</span><span>+9 Value</span>
-            </div>
-          </div>
-          <button className="wide primary" onClick={runRecovery}>Apply Recommendation</button>
-          <button className="wide" onClick={resetRecovery}>Reset Simulation</button>
+        <section className="heroGrid">
+          <CompanyDNA trust={pulse.trust} drift={pulse.drift} />
+          <Reactor company={company} sector={data.sector} pulse={pulse} />
+          <ExecutiveAI pulse={pulse} runRecovery={runRecovery} />
+        </section>
 
-          <div className="crystal-card">
-            <h3>Company Health Crystal</h3>
-            <div className={`crystal ${score.level > 9 ? 'cracked' : ''}`}>
-              <span />
-            </div>
-            <p>{score.level > 9 ? 'Heavy fracture detected' : 'Crystal reforming toward Level 5'}</p>
-          </div>
-        </aside>
-      </section>
+        <section className="lowerGrid">
+          <ConfidenceRiver />
+          <RecoveryHorizon pulse={pulse} />
+          <OpportunityGalaxy />
+        </section>
 
-      <section className="lower-grid">
-        <div className="panel galaxy fused">
-          <div className="section-title"><span>04</span><h2>Recovery Opportunity Galaxy</h2></div>
-          <div className="galaxy-field">
-            <div className="company-star">{companyName}</div>
-            {opportunities.map((o, i) => <div className={`planet planet-${i}`} key={o}>{o}</div>)}
-          </div>
-        </div>
+        <section className="wideGrid">
+          <MarketGravity company={company} />
+          <RecoveryTimeline />
+          <SignalFormula />
+        </section>
+      </main>
 
-        <div className="panel gravity fused">
-          <div className="section-title"><span>05</span><h2>Market Gravity Engine</h2></div>
-          {['Customers', 'Competitors', 'Investors', 'Media', 'Employees', 'Suppliers'].map((x, i) => (
-            <div className="gravity-row" key={x}><span>{x}</span><b style={{ width: `${42 + ((i * 13 + score.improved) % 52)}%` }} /></div>
-          ))}
-        </div>
-
-        <div className="panel timeline fused">
-          <div className="section-title"><span>06</span><h2>Recovery Timeline</h2></div>
-          <div className="time-line">
-            {timeline.map((t, i) => <div className={i <= step + 1 ? 'active' : ''} key={t}><b>{i + 1}</b><span>{t}</span></div>)}
-          </div>
-        </div>
-      </section>
-
-      <section className="formula-panel panel fused">
-        <div className="section-title"><span>07</span><h2>ReCentre Telemetry Formulas</h2></div>
-        {['BUY + TRUST = GAIN', 'SELL + TRUST = LOSS', 'DRIFT + PRESSURE = RISK', 'CENTRE + CLARITY = STABILITY', 'BUILD + TRUST = VALUE', 'REPAIR + RELEVANCE = GROWTH', 'ALIGN + VALUE = RECENTRE'].map((f) => <code key={f}>{f}</code>)}
-      </section>
-
-      <style>{styles}</style>
-    </main>
+      <style>{css}</style>
+    </div>
   );
 }
 
-const styles = `
-*{box-sizing:border-box} body{margin:0;background:#030512;color:#eef7ff;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Arial,sans-serif} button,select{font:inherit}
-.rc-shell{position:relative;min-height:100vh;padding:24px;overflow:hidden;background:radial-gradient(circle at 50% 0%,#11245f55,transparent 42%),linear-gradient(135deg,#030512,#06071b 45%,#13051f)}
-.ambient-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(94,234,212,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(94,234,212,.055) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(to bottom,black,transparent 90%);pointer-events:none}.orb{position:fixed;border-radius:999px;filter:blur(65px);opacity:.45;pointer-events:none}.orb-a{width:520px;height:520px;background:#00e5ff;left:-150px;top:-130px}.orb-b{width:620px;height:620px;background:#ff2df7;right:-200px;top:120px}.orb-c{width:520px;height:520px;background:#604bff;left:35%;bottom:-260px}
-.topbar{position:relative;z-index:2;display:flex;justify-content:space-between;gap:20px;align-items:center;margin:0 auto 18px;max-width:1500px}.brand-block{display:flex;gap:14px;align-items:center}.brand-mark{width:54px;height:54px;border:1px solid #5eead455;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#20f6ff22,#ff35e622);box-shadow:0 0 50px #00e5ff44;font-weight:950;font-size:28px}.brand-block h1{margin:0;font-size:28px;letter-spacing:-.04em}.brand-block p{margin:2px 0 0;color:#9fb4c8;font-size:13px}.top-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}select,button{border:1px solid #ffffff22;border-radius:16px;padding:12px 14px;background:#ffffff0d;color:#fff;box-shadow:inset 0 1px 0 #ffffff18}option{background:#06071b}.primary{background:linear-gradient(135deg,#00e5ff44,#ff2df733);border-color:#5eead477;box-shadow:0 0 28px #00e5ff22}.wide{width:100%;margin-top:10px}
-.signal-ribbon{position:relative;z-index:2;max-width:1500px;margin:0 auto 18px;overflow:hidden;border:1px solid #ffffff18;border-radius:22px;background:#071025aa;backdrop-filter:blur(18px);box-shadow:0 20px 80px #0008}.ticker-track{display:flex;gap:10px;width:max-content;animation:ticker 35s linear infinite;padding:10px}.signal{min-width:190px;border-radius:16px;border:1px solid #ffffff12;padding:10px 12px;display:grid;grid-template-columns:auto auto;gap:2px 10px;background:#ffffff0b}.signal strong{letter-spacing:.08em}.signal span{font-weight:950;text-align:right}.signal em{grid-column:1/-1;font-style:normal;color:#8da4b8;font-size:11px}.positive span{color:#64ffda}.negative span{color:#ff6bd6}@keyframes ticker{to{transform:translateX(-50%)}}
-.surface,.lower-grid{position:relative;z-index:2;max-width:1500px;margin:auto;display:grid;gap:18px}.surface{grid-template-columns:320px minmax(420px,1fr) 330px;align-items:stretch}.lower-grid{grid-template-columns:1.1fr .9fr 1fr;margin-top:18px}.panel,.fused{border:1px solid #ffffff18;background:linear-gradient(145deg,#ffffff10,#ffffff06);backdrop-filter:blur(20px);box-shadow:0 30px 100px #0007,inset 0 1px 0 #ffffff18;border-radius:30px}.panel{padding:20px}.section-title{display:flex;align-items:center;gap:12px;margin-bottom:18px}.section-title span{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:#5eead41a;color:#67e8f9;font-weight:900}.section-title h2{margin:0;font-size:18px;letter-spacing:-.03em}
-.left-rail,.right-rail{padding:20px}.dna-helix{display:grid;gap:13px}.dna-row{display:grid;grid-template-columns:82px 1fr 34px;align-items:center;gap:10px;font-size:12px;color:#b8c7d8}.dna-row b{color:#fff}.dna-bar{height:12px;border-radius:999px;background:#ffffff12;overflow:hidden;position:relative}.dna-bar i{position:absolute;inset:0 auto 0 0;width:calc(var(--v)*1%);border-radius:999px;background:linear-gradient(90deg,#00e5ff,#ff2df7)}.confidence-river{margin-top:24px;border-top:1px solid #ffffff12;padding-top:18px}.confidence-river h3{margin:0 0 12px}.river,.leak{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}.river span,.leak span{border-radius:999px;padding:8px 10px;font-size:11px;font-weight:850}.river span{background:#00e5ff20;color:#9ffcff}.leak span{background:#ff2d6e20;color:#ffafcf}
-.centre-stage{min-height:780px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px;border:1px solid #ffffff12;border-radius:34px;background:radial-gradient(circle at 50% 35%,#00e5ff18,transparent 30%),radial-gradient(circle at 50% 55%,#ff2df714,transparent 34%),#ffffff08;backdrop-filter:blur(20px);box-shadow:0 40px 130px #0008}.hero-copy{text-align:center;max-width:760px;padding-top:20px}.eyebrow{display:inline-flex;border:1px solid #5eead455;color:#a5f3fc;background:#00e5ff12;border-radius:999px;padding:8px 14px;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.12em}.hero-copy h2{font-size:clamp(42px,7vw,88px);line-height:.88;margin:16px 0 12px;letter-spacing:-.08em}.hero-copy p{margin:0 auto;color:#a8b9ca;max-width:620px;font-size:18px;line-height:1.6}.reactor-wrap{position:relative;width:min(590px,100%);height:520px;display:grid;place-items:center}.ring{position:absolute;border-radius:999px;border:1px solid #5eead433;box-shadow:0 0 50px #00e5ff18}.ring-1{width:520px;height:520px;animation:spin 22s linear infinite}.ring-2{width:400px;height:400px;border-color:#ff2df744;animation:spin 16s linear infinite reverse}.ring-3{width:280px;height:280px;border-color:#ffffff26;animation:spin 11s linear infinite}.reactor-core{position:relative;width:250px;height:250px;border-radius:50%;display:grid;place-items:center;text-align:center;padding:26px;background:radial-gradient(circle,#10244a 0,#09132d 55%,#040716 100%);border:1px solid #67e8f966;box-shadow:0 0 90px #00e5ff44, inset 0 0 60px #ff2df714}.reactor-core span{color:#9fb4c8;font-size:12px}.reactor-core h3{margin:0;font-size:30px;letter-spacing:-.05em}.score{font-size:68px;font-weight:950;line-height:.8;color:#fff;text-shadow:0 0 28px #00e5ff}.reactor-core p{margin:0;color:#9fb4c8}.level-pill{border:1px solid #ffffff22;border-radius:999px;padding:8px 12px;background:#ffffff12;font-size:12px}.particle{position:absolute;width:10px;height:10px;border-radius:50%;background:#64ffda;box-shadow:0 0 22px #64ffda}.p1{animation:orbit1 8s linear infinite}.p2{animation:orbit2 11s linear infinite}.p3{animation:orbit3 14s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}@keyframes orbit1{from{transform:rotate(0deg) translateX(255px)}to{transform:rotate(360deg) translateX(255px)}}@keyframes orbit2{from{transform:rotate(120deg) translateX(205px)}to{transform:rotate(480deg) translateX(205px)}}@keyframes orbit3{from{transform:rotate(240deg) translateX(150px)}to{transform:rotate(600deg) translateX(150px)}}
-.horizon{width:100%;padding:18px}.mountain-chart{height:190px;display:flex;gap:16px;align-items:flex-end;padding:18px;border-radius:24px;background:linear-gradient(180deg,#ffffff08,#00000020)}.peak{flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;position:relative}.peak i{width:100%;height:var(--h);display:block;background:linear-gradient(180deg,#64ffda,#2c3cff);clip-path:polygon(50% 0,100% 100%,0 100%);filter:drop-shadow(0 0 18px #00e5ff66)}.peak b{position:absolute;bottom:8px;font-size:12px}
-.ai-card{border:1px solid #ffffff12;border-radius:24px;background:#00000022;padding:18px}.ai-card p,.crystal-card p{color:#98adbf;margin:0 0 8px}.ai-card h3{font-size:22px;line-height:1.15;margin:0 0 16px}.impact-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.impact-grid span{border-radius:12px;background:#00e5ff14;color:#a5f3fc;padding:9px;font-weight:850;font-size:12px}.crystal-card{margin-top:20px;text-align:center}.crystal{position:relative;margin:16px auto;width:138px;height:138px;clip-path:polygon(50% 0,88% 24%,76% 82%,50% 100%,24% 82%,12% 24%);background:linear-gradient(135deg,#00e5ff,#7547ff,#ff2df7);box-shadow:0 0 55px #00e5ff66}.crystal.cracked:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 45%,#030512 46% 48%,transparent 49%)}
-.galaxy-field{position:relative;height:360px;border-radius:26px;background:radial-gradient(circle,#00e5ff12,transparent 60%),#00000020;overflow:hidden}.company-star{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;display:grid;place-items:center;text-align:center;background:#071025;border:1px solid #67e8f966;box-shadow:0 0 70px #00e5ff55;font-weight:950}.planet{position:absolute;border:1px solid #ffffff24;background:#ffffff10;border-radius:999px;padding:10px 12px;font-size:12px;font-weight:800;box-shadow:0 0 24px #ff2df733}.planet-0{left:10%;top:18%}.planet-1{right:12%;top:14%}.planet-2{left:12%;bottom:20%}.planet-3{right:18%;bottom:18%}.planet-4{left:43%;top:8%}.planet-5{left:38%;bottom:8%}.planet-6{right:6%;top:48%}
-.gravity-row{display:grid;grid-template-columns:100px 1fr;gap:12px;align-items:center;margin:15px 0}.gravity-row span{color:#b8c7d8}.gravity-row b{height:14px;border-radius:999px;background:linear-gradient(90deg,#00e5ff,#ff2df7);box-shadow:0 0 24px #00e5ff33}.time-line{display:grid;gap:14px}.time-line div{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:center;opacity:.45}.time-line div.active{opacity:1}.time-line b{height:36px;width:36px;border-radius:14px;display:grid;place-items:center;background:#ffffff12}.time-line .active b{background:#00e5ff22;color:#a5f3fc;box-shadow:0 0 20px #00e5ff33}.formula-panel{max-width:1500px;margin:18px auto 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.formula-panel .section-title{width:100%;margin-bottom:8px}.formula-panel code{border:1px solid #ffffff14;border-radius:14px;padding:12px 14px;background:#00000025;color:#d6faff;font-weight:850}
-@media(max-width:1150px){.surface{grid-template-columns:1fr}.lower-grid{grid-template-columns:1fr}.centre-stage{min-height:auto}.reactor-wrap{height:460px}.topbar{align-items:flex-start;flex-direction:column}.left-rail,.right-rail{order:2}}@media(max-width:640px){.rc-shell{padding:14px}.hero-copy h2{font-size:48px}.ring-1{width:360px;height:360px}.ring-2{width:285px;height:285px}.ring-3{width:210px;height:210px}.reactor-wrap{height:390px}.reactor-core{width:210px;height:210px}.score{font-size:54px}.surface,.lower-grid{gap:12px}.top-actions{width:100%}.top-actions>*{flex:1}.signal{min-width:160px}.mountain-chart{gap:8px}}
+function Reactor({ company, sector, pulse }) {
+  return (
+    <section className="reactorPanel glass">
+      <div className="reactorShell">
+        <div className="ring ring1" />
+        <div className="ring ring2" />
+        <div className="ring ring3" />
+        <div className="ring ring4" />
+        {Array.from({ length: 30 }).map((_, i) => <i key={i} className="particle" style={{ '--i': i }} />)}
+        <div className="coreCrystal">
+          <span>{sector}</span>
+          <h3>{company}</h3>
+          <strong>Level {pulse.recoveredLevel}</strong>
+          <em>{pulse.status}</em>
+        </div>
+      </div>
+      <div className="reactorStats">
+        <Mini label="Trust" value={pulse.trust + '%'} />
+        <Mini label="Market Drift" value={pulse.drift + '%'} />
+        <Mini label="Recovery Probability" value={pulse.recovery + '%'} />
+      </div>
+    </section>
+  );
+}
+
+function CompanyDNA({ trust, drift }) {
+  return (
+    <section className="glass dnaPanel">
+      <PanelTitle kicker="Living Company Model" title="Company DNA" />
+      <div className="helix">
+        {DNA.map((d, i) => {
+          const strength = Math.max(22, Math.min(96, trust - drift / 3 + i * 3));
+          return <div className="gene" key={d} style={{ '--s': strength + '%', '--i': i }}><span>{d}</span><b>{Math.round(strength)}</b></div>;
+        })}
+      </div>
+    </section>
+  );
+}
+
+function ExecutiveAI({ pulse, runRecovery }) {
+  return (
+    <section className="glass aiPanel">
+      <PanelTitle kicker="Executive Intelligence" title="Highest ROI Action" />
+      <div className="aiOrb">AI</div>
+      <h3>Increase pricing confidence and rewrite the market promise.</h3>
+      <div className="impactGrid">
+        <Mini label="Trust Gain" value="＋11" />
+        <Mini label="Drift Cut" value="−8" />
+        <Mini label="Recovery" value={pulse.recovery + '%'} />
+      </div>
+      <button className="primary full" onClick={runRecovery}>Apply Action</button>
+    </section>
+  );
+}
+
+function ConfidenceRiver() {
+  return (
+    <section className="glass riverPanel">
+      <PanelTitle kicker="Signal Flow" title="Confidence River" />
+      <div className="river">
+        <div className="stream inStream">{IN_FLOW.map((x) => <span key={x}>{x}</span>)}</div>
+        <div className="stream outStream">{OUT_FLOW.map((x) => <span key={x}>{x}</span>)}</div>
+      </div>
+    </section>
+  );
+}
+
+function RecoveryHorizon({ pulse }) {
+  const levels = [12, 10, 8, 7, 6, pulse.recoveredLevel, 5];
+  return (
+    <section className="glass horizonPanel">
+      <PanelTitle kicker="AI Forecast" title="Recovery Horizon" />
+      <div className="mountains">
+        {levels.map((l, i) => <div key={i} className="mountain" style={{ height: `${(16 - l) * 9 + 28}px` }}><span>L{l}</span></div>)}
+      </div>
+      <p>Projected path: stabilize trust, reduce market drift, certify Level 5.</p>
+    </section>
+  );
+}
+
+function OpportunityGalaxy() {
+  return (
+    <section className="glass galaxyPanel">
+      <PanelTitle kicker="Market Pull" title="Opportunity Galaxy" />
+      <div className="galaxy">
+        <div className="sun">VALUE</div>
+        {OPPS.map((o, i) => <span key={o} className="planet" style={{ '--i': i }}>{o}</span>)}
+      </div>
+    </section>
+  );
+}
+
+function MarketGravity({ company }) {
+  return (
+    <section className="glass gravityPanel">
+      <PanelTitle kicker="Stakeholder Orbit" title="Market Gravity Engine" />
+      <div className="gravityMap">
+        <div className="companyNode">{company}</div>
+        {['Customers', 'Competitors', 'Investors', 'Media', 'Employees', 'Partners'].map((x, i) => <span key={x} style={{ '--i': i }}>{x}</span>)}
+      </div>
+    </section>
+  );
+}
+
+function RecoveryTimeline() {
+  return (
+    <section className="glass timelinePanel">
+      <PanelTitle kicker="Failure Replay" title="Recovery Timeline" />
+      <div className="timeline">
+        {['Failure', 'Drift', 'Customer Loss', 'New Promise', 'Recovery', 'Level 5'].map((x) => <div key={x}><b>{x}</b><span /></div>)}
+      </div>
+    </section>
+  );
+}
+
+function SignalFormula() {
+  return (
+    <section className="glass formulaPanel">
+      <PanelTitle kicker="Telemetry Logic" title="Signal Formula Language" />
+      {['BUY + TRUST = GAIN', 'SELL + TRUST = LOSS', 'DRIFT + PRESSURE = RISK', 'CENTRE + CLARITY = STABILITY', 'REPAIR + RELEVANCE = GROWTH'].map((f) => <code key={f}>{f}</code>)}
+    </section>
+  );
+}
+
+function PanelTitle({ kicker, title }) { return <div className="panelTitle"><span>{kicker}</span><h3>{title}</h3></div>; }
+function Mini({ label, value }) { return <div className="mini"><span>{label}</span><b>{value}</b></div>; }
+
+const css = `
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial;background:#03050d;color:white}button,select{font:inherit}.app{min-height:100vh;display:grid;grid-template-columns:270px 1fr;position:relative;overflow:hidden}.spaceGrid{position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:62px 62px;mask-image:radial-gradient(circle at 55% 35%,black,transparent 80%)}.aurora{position:fixed;border-radius:999px;filter:blur(80px);opacity:.55;pointer-events:none}.a1{width:520px;height:520px;background:#00d9ff;left:220px;top:-120px}.a2{width:520px;height:520px;background:#ff3df2;right:-150px;top:180px}.a3{width:620px;height:620px;background:#6d5cff;left:40%;bottom:-300px}.sidebar{position:relative;z-index:2;padding:28px 20px;border-right:1px solid rgba(255,255,255,.09);background:rgba(3,5,13,.68);backdrop-filter:blur(28px);min-height:100vh}.brandMark{width:58px;height:58px;border-radius:22px;display:grid;place-items:center;font-weight:1000;font-size:20px;background:linear-gradient(135deg,rgba(0,217,255,.22),rgba(255,61,242,.18));border:1px solid rgba(255,255,255,.18);box-shadow:0 0 45px rgba(0,217,255,.22)}h1{margin:16px 0 0;font-size:28px}h1+p{margin:5px 0 28px;color:rgba(255,255,255,.55);font-size:13px;line-height:1.5}nav{display:grid;gap:9px}nav button{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:rgba(255,255,255,.68);border-radius:18px;padding:13px 14px;text-align:left;cursor:pointer}.navActive{background:linear-gradient(90deg,rgba(0,217,255,.18),rgba(255,61,242,.08));color:white;border-color:rgba(0,217,255,.28)}.sideCard{margin-top:28px;border:1px solid rgba(0,217,255,.18);background:rgba(0,217,255,.08);border-radius:24px;padding:18px}.sideCard span,.eyebrow,.panelTitle span,.mini span{color:rgba(255,255,255,.52);font-size:12px;text-transform:uppercase;letter-spacing:.12em}.sideCard strong{display:block;margin-top:8px;line-height:1.4}.surface{position:relative;z-index:1;padding:28px;min-width:0}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px}.topbar h2{font-size:42px;margin:4px 0 0;letter-spacing:-.04em}.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.controls select,.controls button,.primary{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.07);color:white;border-radius:999px;padding:11px 15px;cursor:pointer}.primary{background:linear-gradient(135deg,#00d9ff,#8d5cff 55%,#ff3df2);color:#02040a;font-weight:900;box-shadow:0 0 40px rgba(0,217,255,.28)}.full{width:100%;margin-top:14px}.ticker{margin:22px 0;display:flex;gap:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.045);border-radius:26px;padding:12px;backdrop-filter:blur(18px)}.tick{min-width:132px;border-right:1px solid rgba(255,255,255,.08);padding:4px 10px}.tick b{font-size:13px}.tick span{margin-left:9px;color:#5ff4ff;font-weight:900}.tick small{display:block;color:rgba(255,255,255,.4);margin-top:3px;font-size:10px}.heroGrid{display:grid;grid-template-columns:260px minmax(420px,1fr) 300px;gap:18px}.lowerGrid{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:18px;margin-top:18px}.wideGrid{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:18px;margin-top:18px}.glass{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.105);background:linear-gradient(145deg,rgba(255,255,255,.095),rgba(255,255,255,.035));border-radius:32px;padding:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 30px 90px rgba(0,0,0,.32);backdrop-filter:blur(26px)}.glass:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 0%,rgba(0,217,255,.13),transparent 42%),radial-gradient(circle at 80% 20%,rgba(255,61,242,.11),transparent 42%);pointer-events:none}.panelTitle{position:relative;z-index:1}.panelTitle h3{margin:5px 0 16px;font-size:22px}.reactorPanel{min-height:560px;display:flex;flex-direction:column;justify-content:space-between}.reactorShell{height:420px;position:relative;display:grid;place-items:center}.ring{position:absolute;border-radius:50%;border:1px solid rgba(95,244,255,.22);box-shadow:0 0 35px rgba(0,217,255,.14)}.ring1{width:390px;height:390px;animation:spin 30s linear infinite}.ring2{width:305px;height:305px;border-color:rgba(255,61,242,.22);animation:spin 22s linear reverse infinite}.ring3{width:225px;height:225px;border-style:dashed;animation:spin 15s linear infinite}.ring4{width:455px;height:160px;transform:rotate(-12deg);border-color:rgba(255,255,255,.12);animation:tilt 6s ease-in-out infinite}.particle{position:absolute;width:5px;height:5px;border-radius:50%;background:#6ff7ff;box-shadow:0 0 18px #6ff7ff;transform:rotate(calc(var(--i)*12deg)) translateX(198px);animation:particle 3s ease-in-out infinite;animation-delay:calc(var(--i)*-.12s)}.coreCrystal{width:190px;height:190px;border-radius:50%;display:grid;place-items:center;text-align:center;padding:20px;background:radial-gradient(circle,#effcff 0,#72f4ff 7%,rgba(0,217,255,.18) 46%,rgba(255,61,242,.12) 100%);border:1px solid rgba(255,255,255,.32);box-shadow:0 0 90px rgba(0,217,255,.45),inset 0 0 40px rgba(255,255,255,.24);z-index:2}.coreCrystal span{font-size:10px;color:rgba(0,20,35,.75);font-weight:900;text-transform:uppercase}.coreCrystal h3{margin:0;color:#02040a;font-size:26px}.coreCrystal strong{font-size:38px;color:#02040a}.coreCrystal em{font-style:normal;color:#03101a;font-size:12px;font-weight:900}.reactorStats,.impactGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:2}.mini{border:1px solid rgba(255,255,255,.09);background:rgba(0,0,0,.22);border-radius:20px;padding:14px}.mini b{display:block;margin-top:6px;font-size:22px}.helix{position:relative;z-index:2;display:grid;gap:10px}.gene{position:relative;height:37px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.2);overflow:hidden;transform:translateX(calc(sin(var(--i))*10px))}.gene:before{content:"";position:absolute;inset:0 auto 0 0;width:var(--s);background:linear-gradient(90deg,rgba(0,217,255,.75),rgba(255,61,242,.45));box-shadow:0 0 22px rgba(0,217,255,.35)}.gene span,.gene b{position:relative;z-index:1;line-height:37px}.gene span{padding-left:14px}.gene b{float:right;padding-right:14px}.aiOrb{width:78px;height:78px;border-radius:28px;display:grid;place-items:center;background:linear-gradient(135deg,#00d9ff,#ff3df2);color:#02040a;font-weight:1000;font-size:28px;box-shadow:0 0 70px rgba(255,61,242,.3)}.aiPanel h3{font-size:25px;line-height:1.05;margin:20px 0}.river{position:relative;z-index:1;height:210px;display:grid;grid-template-columns:1fr 1fr;gap:14px}.stream{position:relative;overflow:hidden;border-radius:26px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22);padding:16px;display:flex;flex-wrap:wrap;align-content:center;gap:10px}.stream:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 20px,rgba(255,255,255,.08) 21px 22px);animation:flow 3s linear infinite}.outStream:after{animation-direction:reverse}.stream span{position:relative;z-index:1;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:900;background:rgba(0,217,255,.14);border:1px solid rgba(0,217,255,.2)}.outStream span{background:rgba(255,61,242,.13);border-color:rgba(255,61,242,.2)}.mountains{height:210px;display:flex;align-items:flex-end;gap:10px;position:relative;z-index:1}.mountain{flex:1;border-radius:18px 18px 6px 6px;background:linear-gradient(180deg,rgba(95,244,255,.85),rgba(141,92,255,.35));box-shadow:0 0 35px rgba(0,217,255,.18);display:grid;place-items:end center;padding-bottom:8px}.mountain span{font-weight:900;font-size:12px}.horizonPanel p{color:rgba(255,255,255,.58);position:relative;z-index:1}.galaxy{height:230px;position:relative;display:grid;place-items:center}.sun{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:rgba(0,217,255,.18);border:1px solid rgba(0,217,255,.3);box-shadow:0 0 50px rgba(0,217,255,.25);font-weight:1000}.planet{position:absolute;left:50%;top:50%;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:800;transform:rotate(calc(var(--i)*45deg)) translateX(104px) rotate(calc(var(--i)*-45deg));animation:orbitPulse 3s ease-in-out infinite;animation-delay:calc(var(--i)*-.2s)}.gravityMap{height:250px;position:relative;display:grid;place-items:center}.companyNode{width:104px;height:104px;border-radius:50%;display:grid;place-items:center;text-align:center;background:rgba(0,217,255,.16);border:1px solid rgba(0,217,255,.3);font-weight:1000}.gravityMap span{position:absolute;left:50%;top:50%;transform:rotate(calc(var(--i)*60deg)) translateX(135px) rotate(calc(var(--i)*-60deg));font-size:12px;background:rgba(255,255,255,.07);padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1)}.timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;position:relative;z-index:1}.timeline div{min-height:150px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22);padding:13px;display:flex;flex-direction:column;justify-content:space-between}.timeline span{height:7px;border-radius:999px;background:linear-gradient(90deg,#ff3df2,#00d9ff)}.formulaPanel code{display:block;position:relative;z-index:1;padding:12px 14px;margin:9px 0;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22);color:#91f8ff;font-weight:800;white-space:normal}@keyframes spin{to{transform:rotate(360deg)}}@keyframes tilt{50%{transform:rotate(12deg) scale(1.04)}}@keyframes particle{50%{transform:rotate(calc(var(--i)*12deg + 25deg)) translateX(145px);opacity:.35}}@keyframes flow{to{background-position:80px 0}}@keyframes orbitPulse{50%{filter:brightness(1.5);box-shadow:0 0 24px rgba(0,217,255,.25)}}@media(max-width:1180px){.app{grid-template-columns:1fr}.sidebar{min-height:auto;display:none}.heroGrid,.lowerGrid,.wideGrid{grid-template-columns:1fr}.reactorPanel{min-height:auto}.topbar{align-items:flex-start;flex-direction:column}.surface{padding:18px}.topbar h2{font-size:34px}.ticker{overflow:auto}.reactorShell{height:360px}.ring1{width:310px;height:310px}.ring2{width:250px;height:250px}.ring3{width:180px;height:180px}.ring4{width:330px}.particle{display:none}}@media(max-width:620px){.reactorStats,.impactGrid{grid-template-columns:1fr}.timeline{grid-template-columns:1fr 1fr}.controls{justify-content:flex-start}.coreCrystal{width:165px;height:165px}.coreCrystal strong{font-size:30px}.topbar h2{font-size:29px}}
 `;
