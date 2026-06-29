@@ -1,5 +1,5 @@
 import React from 'react';
-const nav = ['Company Pulse','Telemetry Supervisor','Recovery Engine','Category Studio','Signal Graph','Executive Reports','AI Copilot'];
+const nav = ['Company Pulse','Telemetry Supervisor','Recovery Engine','Time Machine','Category Studio','Signal Graph','Executive Reports','AI Copilot'];
 export default function Sidebar({ active }) {
   return <aside className="sidebar">
     <div className="brand"><div className="brandMark">R</div><div><h1>ReCentre</h1><p>Company Recovery OS</p></div></div>

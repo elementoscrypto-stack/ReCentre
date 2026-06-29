@@ -1,0 +1,67 @@
+/* ReCentre V1.3 — Time Machine / Recovery Horizon amplified visual layer */
+.tm-shell {
+  position: relative;
+  margin-top: 28px;
+  padding: 28px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(103,232,249,.16), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(217,70,239,.14), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,.078), rgba(255,255,255,.032));
+  box-shadow: 0 30px 90px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.12);
+  overflow: hidden;
+}
+.tm-shell:before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background: repeating-conic-gradient(from 90deg, rgba(103,232,249,.08) 0deg 2deg, transparent 2deg 10deg);
+  animation: tmSpin 32s linear infinite;
+  opacity: .32;
+}
+.tm-header, .tm-grid { position: relative; z-index: 1; }
+.tm-header { display:flex; justify-content:space-between; gap:24px; align-items:flex-start; margin-bottom:24px; }
+.eyebrow { margin:0 0 8px; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:rgba(103,232,249,.86); font-weight:800; }
+.tm-header h2 { margin:0; font-size: clamp(34px, 5vw, 74px); line-height:.9; letter-spacing:-.07em; }
+.tm-subtitle { max-width: 760px; color:rgba(255,255,255,.62); line-height:1.65; }
+.tm-live-badge { white-space:nowrap; display:flex; align-items:center; gap:9px; border:1px solid rgba(103,232,249,.23); border-radius:999px; padding:10px 14px; background:rgba(103,232,249,.08); color:rgba(255,255,255,.75); font-size:13px; }
+.tm-dot { width:8px; height:8px; background:#67e8f9; border-radius:50%; box-shadow:0 0 18px #67e8f9; animation: tmPulse 1.4s ease-in-out infinite; }
+.tm-grid { display:grid; grid-template-columns: 310px 1fr; gap:18px; }
+.tm-panel { border:1px solid rgba(255,255,255,.105); border-radius:28px; padding:18px; background:rgba(3,7,18,.52); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); backdrop-filter: blur(18px); }
+.tm-panel-title { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.tm-panel-title span { display:grid; place-items:center; width:34px; height:34px; border-radius:12px; background:rgba(103,232,249,.12); border:1px solid rgba(103,232,249,.22); color:#67e8f9; font-size:12px; font-weight:900; }
+.tm-scenarios { display:grid; gap:10px; }
+.tm-scenario { text-align:left; border:1px solid rgba(255,255,255,.1); border-radius:18px; background:rgba(255,255,255,.04); color:white; padding:14px; cursor:pointer; transition:.25s ease; }
+.tm-scenario small, .tm-oracle-card p, .tm-metric small, .tm-signal small, .tm-ledger-row small { display:block; color:rgba(255,255,255,.5); margin-top:4px; }
+.tm-scenario.active { border-color:rgba(103,232,249,.55); background:rgba(103,232,249,.12); box-shadow:0 0 34px rgba(103,232,249,.13); transform: translateX(4px); }
+.tm-oracle-card { margin-top:16px; padding:18px; border-radius:24px; border:1px solid rgba(217,70,239,.18); background:linear-gradient(135deg, rgba(217,70,239,.12), rgba(103,232,249,.08)); }
+.tm-oracle-card h3 { margin:6px 0 16px; font-size:21px; line-height:1.16; letter-spacing:-.04em; }
+.tm-oracle-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.tm-metric { border:1px solid rgba(255,255,255,.09); border-radius:16px; background:rgba(0,0,0,.24); padding:10px; }
+.tm-metric b { font-size:18px; }
+.tm-visualizer { min-height:430px; }
+.tm-stage { position:relative; height:350px; border-radius:26px; overflow:hidden; background: radial-gradient(circle at 50% 50%, rgba(103,232,249,.10), transparent 35%), rgba(0,0,0,.23); border:1px solid rgba(255,255,255,.08); }
+.tm-axis { position:absolute; left:6%; right:6%; top:53%; height:1px; background:linear-gradient(90deg, transparent, rgba(103,232,249,.55), transparent); box-shadow:0 0 26px rgba(103,232,249,.35); }
+.tm-lines { position:absolute; inset:0; width:100%; height:100%; filter: drop-shadow(0 0 14px rgba(103,232,249,.55)); }
+.tm-node { position:absolute; translate:-50% -50%; width:82px; height:82px; border-radius:50%; display:grid; place-items:center; text-align:center; border:1px solid rgba(103,232,249,.35); background:rgba(103,232,249,.12); box-shadow:0 0 40px rgba(103,232,249,.18); }
+.tm-node span { font-size:24px; font-weight:950; }
+.tm-node small { font-size:10px; color:rgba(255,255,255,.55); }
+.tm-probability-sphere { position:absolute; right:22px; bottom:22px; width:132px; height:132px; border-radius:50%; display:grid; place-items:center; text-align:center; border:1px solid rgba(255,255,255,.13); background:radial-gradient(circle, rgba(103,232,249,.27), rgba(217,70,239,.12), rgba(0,0,0,.18)); box-shadow:0 0 70px rgba(103,232,249,.18); animation: tmFloat 4s ease-in-out infinite; }
+.tm-probability-sphere b { font-size:34px; }
+.tm-probability-sphere small { color:rgba(255,255,255,.55); margin-top:-18px; }
+.tm-signals, .tm-ledger { min-height:280px; }
+.tm-signal-chain { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.tm-signal { border:1px solid rgba(255,255,255,.09); border-radius:18px; padding:12px; background:rgba(255,255,255,.045); animation: tmSignalIn .7s ease both; }
+.tm-signal b { color:#67e8f9; letter-spacing:.08em; }
+.tm-signal span { float:right; font-weight:950; }
+.tm-equation { margin-top:15px; border-radius:20px; border:1px solid rgba(103,232,249,.18); background:rgba(103,232,249,.08); padding:14px; display:flex; justify-content:space-between; gap:14px; color:rgba(255,255,255,.78); }
+.tm-ledger-row { width:100%; border:1px solid rgba(255,255,255,.08); border-radius:18px; background:rgba(255,255,255,.035); color:white; padding:13px; display:grid; grid-template-columns:1fr auto auto; gap:12px; text-align:left; align-items:center; margin-bottom:10px; cursor:pointer; }
+.tm-ledger-row.active { border-color:rgba(103,232,249,.45); background:rgba(103,232,249,.11); }
+.tm-ledger-row span { color:#67e8f9; font-weight:900; }
+.tm-ledger-row em { color:rgba(255,255,255,.55); font-style:normal; }
+@keyframes tmSpin { to { transform:rotate(360deg); } }
+@keyframes tmPulse { 50% { transform:scale(1.7); opacity:.45; } }
+@keyframes tmFloat { 50% { transform: translateY(-8px) scale(1.03); } }
+@keyframes tmSignalIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform:none; } }
+@media (max-width: 980px) { .tm-grid { grid-template-columns:1fr; } .tm-header { flex-direction:column; } .tm-signal-chain { grid-template-columns:repeat(2,1fr); } }

@@ -1,0 +1,10 @@
+// Add this import near the top of src/components/Pulse/CompanyPulse.jsx:
+import TimeMachine from "./TimeMachine";
+
+// Then place this component near the bottom of the CompanyPulse return layout,
+// after the Reactor / Supervisor / ConfidenceRiver sections:
+<TimeMachine />
+
+// Optional: if your sidebar/navigation has a list of sections, add:
+// Time Machine
+// Recovery Horizon

@@ -7,6 +7,7 @@ import RecoveryTimeline from './RecoveryTimeline';
 import OpportunityGalaxy from './OpportunityGalaxy';
 import CompanyDNA from './CompanyDNA';
 import ExecutiveAI from './ExecutiveAI';
+import TimeMachine from './TimeMachine';
 
 export default function CompanyPulse({ company, selectedAction, setSelectedAction }) {
   return <div className="pulseSurface">
@@ -22,5 +23,6 @@ export default function CompanyPulse({ company, selectedAction, setSelectedActio
       <OpportunityGalaxy items={company.opportunities} />
     </div>
     <TelemetrySupervisor rows={company.supervisor} />
+    <TimeMachine company={company} />
   </div>
 }
