@@ -1,30 +1,37 @@
-# ReCentre OS Core — Design System Bundle
+# ElementOS V233 Resurrected Folder Bundle
 
-A clean Vite/React source bundle for the next ReCentre direction: a living company recovery operating system.
+This bundle restores the attached V233 cinematic launch candidate as the live `src/App.jsx`.
 
-## What this contains
+## Why this fixes the stripped-back bundle
 
-- `core/telemetry` — signal dictionary, supervisor, recovery physics, de-markation, recategorization and forecast logic.
-- `design/motion` — atmosphere, particles, lighting, streams and depth systems.
-- `components/reactor` — Company Core reactor pieces.
-- `components/pulse` — Company Pulse, DNA, Confidence River, Opportunity Galaxy, Supervisor, Executive Intelligence and Timeline.
-- `components/time-machine` — Recovery Horizon / Time Machine with branches, ledger and forecast.
-- `components/ui` — reusable glass panels, buttons, chips and metrics.
-- `styles` — modular CSS design system.
+The previous structured bundle used clean placeholder pages and plain CSS.  
+The attached V233 build uses the original Tailwind cinematic interface, advanced labs, discovery systems, reports, exports, mobile navigation, command palette, subscription UI, and safety guards.
 
-## Install
+## Deploy
 
 ```bash
 npm install
-npm run dev
+npm run build
 ```
 
-## Deploy to Vercel
+## Vercel
 
-Framework: Vite  
+Framework preset: Vite  
 Build command: `npm run build`  
 Output directory: `dist`
 
-## Design principle
+## Supabase
 
-The Reactor is the permanent visual identity. Other modules orbit around it and explain the living company state.
+Add these environment variables only if you want cloud features active:
+
+```bash
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
+
+The app will still render without them because `supabaseClient.js` safely returns `null` if the variables are missing.
+
+## Important
+
+This is a resurrection build. It prioritizes making the website look and feel like V233 again.
+The folder structure is present for the next controlled refactor, but the original app remains intact in `src/App.jsx` to avoid breaking working features.
