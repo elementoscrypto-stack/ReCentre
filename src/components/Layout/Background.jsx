@@ -1,12 +1,14 @@
 import React from 'react';
+
 export default function Background() {
   return (
-    <div className="background" aria-hidden="true">
-      <div className="gridLayer" />
-      <div className="orb orbA" />
-      <div className="orb orbB" />
-      <div className="orb orbC" />
-      <div className="scanline" />
+    <div className="bg-stage" aria-hidden="true">
+      <div className="bg-grid" />
+      <div className="bg-orb orb-a" />
+      <div className="bg-orb orb-b" />
+      <div className="bg-orb orb-c" />
+      <div className="bg-noise" />
+      <div className="bg-scanline" />
     </div>
   );
 }
