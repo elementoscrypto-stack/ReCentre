@@ -1,0 +1,1 @@
+export default function ParticleField(){return <div className="particle-field">{Array.from({length:60}).map((_,i)=><i key={i} style={{left:`${(i*17)%100}%`, top:`${(i*29)%100}%`, animationDelay:`${(i%9)*.35}s`}} />)}</div>}

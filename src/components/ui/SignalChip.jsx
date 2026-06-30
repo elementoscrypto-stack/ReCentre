@@ -1,6 +1,3 @@
-import React from 'react';
 export default function SignalChip({ signal }) {
-  return <div className={`signalChip ${signal.type}`}>
-    <b>{signal.key}</b><strong>{signal.value}</strong><span>{signal.meaning}</span>
-  </div>
+  return <div className={`signal-chip ${signal.polarity}`}><b>{signal.key}</b><span>{signal.value > 0 ? '+' : ''}{signal.value}</span><small>{signal.meaning}</small></div>;
 }

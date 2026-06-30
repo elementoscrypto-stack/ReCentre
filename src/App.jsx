@@ -1,27 +1,22 @@
-import React, { useState } from 'react';
-import './styles.css';
-import Background from './components/Layout/Background';
-import Sidebar from './components/Layout/Sidebar';
-import WelcomeExperience from './components/Pulse/WelcomeExperience';
-import CompanyPulse from './components/Pulse/CompanyPulse';
+import Atmosphere from './design/motion/Atmosphere';
+import CompanyPulse from './components/pulse/CompanyPulse';
+import SignalChip from './components/ui/SignalChip';
+import { signals } from './core/telemetry/SignalDictionary';
 
-export default function App() {
-  const [entered, setEntered] = useState(false);
-  const [section, setSection] = useState('pulse');
-
-  return (
-    <div className="rc-app">
-      <Background />
-      {!entered ? (
-        <WelcomeExperience onEnter={() => setEntered(true)} />
-      ) : (
-        <div className="rc-shell">
-          <Sidebar section={section} setSection={setSection} />
-          <main className="rc-main">
-            <CompanyPulse section={section} setSection={setSection} />
-          </main>
-        </div>
-      )}
-    </div>
-  );
+export default function App(){
+  return <main className="app-shell">
+    <Atmosphere />
+    <aside className="nav-rail">
+      <div className="brand-mark">R</div>
+      <span>Pulse</span><span>Core</span><span>Signals</span><span>Horizon</span><span>AI</span>
+    </aside>
+    <section className="hero-surface">
+      <div className="topbar">
+        <div><small>ReCentre OS Core</small><h1>Company Pulse</h1></div>
+        <div className="status-pill">Peloton Recovery Mission · Live Prototype</div>
+      </div>
+      <div className="signal-ribbon">{signals.slice(0,10).map(s=><SignalChip key={s.key} signal={s}/>)}</div>
+      <CompanyPulse />
+    </section>
+  </main>
 }
